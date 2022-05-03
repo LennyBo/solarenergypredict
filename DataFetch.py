@@ -67,7 +67,14 @@ def crunchVisualCrossingSolcast(df_weather,df_solar,outPutFile):
 def loadCrunchedSolVC(file):
     
     #df = pd.read_csv(file).fillna(method="backfill").fillna(method="backfill").fillna(method="ffill").fillna(0)
-    df = pd.read_csv(file).fillna(0)
+    
+    df = pd.read_csv(file)
+    
+    df.drop(["windgust"],axis=1,inplace=True)
+    
+    df[df.columns.difference(["Ghi","Ghi_NextDay"])] = df[df.columns.difference(["Ghi","Ghi_NextDay"])].fillna(0)
+    df.dropna(inplace=True)
+    
     testingDate = datetime.fromisoformat(df["datetime"][0])
     datesToDelete = []
     for col in df["datetime"][0:-1]:
@@ -102,6 +109,7 @@ def loadCrunchedSolVC(file):
         
         x.append(xTemp)
         y.append([mean(np.array(df["Ghi_NextDay"][i:i+forecastTime]))])
+        
 
     return x,y
 
@@ -135,6 +143,9 @@ def printBaseLine(y,roundDecimal=2):
     shiftedX = y[:-1:]
     shiftedY = y[1::]
     
+    print(f"\nMean y : {round(meanX[0][0],roundDecimal)}")
+    print(f"Median y : {round(medianX[0],roundDecimal)}")
+    
     
     print(f"\nBaselines")
     print(f"  Mean absolute error:")
@@ -157,7 +168,7 @@ if __name__ == "__main__":
     
     
     x,y = loadCrunchedSolVC(
-            "data/Crunched/S_V_Dev4.csv"
+            "data/Crunched/S_V_Dev5.csv"
         )
     
     x = np.asarray(x).astype('float32')
@@ -182,6 +193,7 @@ if __name__ == "__main__":
     # scaler = StandardScaler()
     # y_train = scaler.fit_transform(y_train)
     # y_test = scaler.transform(y_test)
+    
     
 
     
@@ -218,7 +230,7 @@ if __name__ == "__main__":
     print('  Mean absolute error:', round(score[1],roundDecimal))
     print('  Mean squared error :', round(score[0],roundDecimal))
     
-    printBaseLine(y_test)
+    printBaseLine(y_test,roundDecimal)
     
     
     

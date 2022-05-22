@@ -1,16 +1,11 @@
-from matplotlib import testing
-from matplotlib.pyplot import sca
 import pandas as pd
-from datetime import datetime, timedelta,date
+from datetime import datetime, timedelta
 import numpy as np
 from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import train_test_split
 import os
 
 
-import tensorflow as tf
-from tensorflow import keras
-from tensorflow.keras import layers
+from keras import layers
 from keras.models import Sequential
 from keras.layers import Dense
 from tensorflow.keras.utils import to_categorical
@@ -137,38 +132,36 @@ def loadDFsToCrunch():
     return df_weather, df_solcast
     
 
+def getBaselines(x,y):
+    return (round(mean_absolute_error(x,y),roundDecimal),round(mean_squared_error(x,y),roundDecimal))
+
 def printBaseLine(y,roundDecimal=2):
     meanX = [mean(y)] * len(y)
     medianX = [np.median(y)] * len(y)
     shiftedX = y[:-1:]
     shiftedY = y[1::]
     
-    print(f"\nMean y : {round(meanX[0][0],roundDecimal)}")
-    print(f"Median y : {round(medianX[0],roundDecimal)}")
+    print(f"\nMean y_test : {round(meanX[0][0],roundDecimal)}")
+    print(f"Median y_test : {round(medianX[0],roundDecimal)}")
     
-    
-    print(f"\nBaselines")
-    print(f"  Mean absolute error:")
-    print(f"    Mean : {round(mean_absolute_error(meanX,y),roundDecimal)}")
-    print(f"    Median : {round(mean_absolute_error(medianX,y),roundDecimal)}")
-    print(f"    Shifted : {round(mean_absolute_error(shiftedX,shiftedY),roundDecimal)}")
-    
-    print(f"\n  Mean  squared error:")
-    print(f"    Mean : {round(mean_squared_error(meanX,y),roundDecimal)}")
-    print(f"    Median : {round(mean_squared_error(medianX,y),roundDecimal)}")
-    print(f"    Shifted : {round(mean_squared_error(shiftedX,shiftedY),roundDecimal)}")
+    mae , mse = getBaselines(meanX,y)
+    print(f"Mean baseline: mae : {mae}, mse : {mse}")
+    mae, mse = getBaselines(medianX,y)
+    print(f"Median baseline: mae : {mae}, mse : {mse}")
+    mae, mse = getBaselines(shiftedX,shiftedY)
+    print(f"Shifted baseline: mae : {mae}, mse : {mse}")
 
 if __name__ == "__main__":
     
     # df_weather, df_solcast = loadDFsToCrunch()
-    # crunchVisualCrossingSolcast(df_weather,df_solcast,"./data/Crunched/S_V_Dev5.csv")
+    # crunchVisualCrossingSolcast(df_weather,df_solcast,"./data/Crunched/S_V_Dev7.csv")
     # exit()
     
     
     
     
     x,y = loadCrunchedSolVC(
-            "data/Crunched/S_V_Dev5.csv"
+            "data/Crunched/S_V_Dev7.csv"
         )
     
     x = np.asarray(x).astype('float32')
@@ -177,7 +170,7 @@ if __name__ == "__main__":
     # x = x.reshape(length,sX,yX,1)
     y = np.asarray(y)
     
-    test_size = 0.20
+    test_size = 0.15
     length = len(y)
     X_train, X_test, y_train, y_test = (
         x[0:int(length*(1-test_size))],
@@ -217,10 +210,15 @@ if __name__ == "__main__":
     
     model.compile(loss= "mean_squared_error" , optimizer="adam", metrics=["mean_absolute_error"])
     
+    # tf.keras.utils.plot_model(model, to_file="NN_Diagramm.png", show_shapes=True)
+    
+    
     rollingWindow = 360
-    valWindow = 30
+    valWindow = 0
     from tqdm import tqdm
-    for i in tqdm(range(0,len(X_train) - rollingWindow-valWindow,30)):
+    for i in tqdm(range(0,len(X_train) - rollingWindow-valWindow,10)):
+        model.fit(X_train[i:i+rollingWindow], y_train[i:i+rollingWindow], epochs=1, verbose=0,validation_data=(X_train[i+rollingWindow:i+rollingWindow+valWindow], y_train[i+rollingWindow:i+rollingWindow+valWindow]))
+    for i in tqdm(range(0,len(X_train) - rollingWindow-valWindow,10)):
         model.fit(X_train[i:i+rollingWindow], y_train[i:i+rollingWindow], epochs=1, verbose=0,validation_data=(X_train[i+rollingWindow:i+rollingWindow+valWindow], y_train[i+rollingWindow:i+rollingWindow+valWindow]))
     
     score = model.evaluate(X_test, y_test, verbose=0)

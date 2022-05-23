@@ -9,6 +9,8 @@ __pycache__/
 *$py.class
 secret.py
 
+models/
+
 # C extensions
 *.so
 

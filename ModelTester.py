@@ -39,4 +39,4 @@ for ebh, dateT in zip(res, dateTs):
     print(dateT)
     solarOutput = ebhToPower(ebh, dateT)
 
-    print(f"{dateT.date()} : {round(solarOutput / 1000, 2)} kW")
+    print(f"{dateT.date()} : {round(solarOutput / 1000, 2)} kWh")

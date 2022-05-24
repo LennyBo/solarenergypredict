@@ -1,5 +1,6 @@
+import matplotlib.pyplot as plt
 import pandas as pd
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 import numpy as np
 from sklearn.preprocessing import StandardScaler
 import os
@@ -11,13 +12,13 @@ from keras.layers import Dense
 from tensorflow.keras.utils import to_categorical
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 
-forecastStart = 6  # 6 am
-forecastTime = 12  # 12 hours after 6 am
+forecastStart = 0  # 6 am
+forecastTime = 24  # 12 hours after 6 am
 
 
 def crunchVisualCrossingSolcast(df_weather, df_solar, outPutFile):
     """
-    Takes the Ebh of the solcast set and the weather
+    Takes the Ghi of the solcast set and the weather
     of the visualCrossing set and puts it togetgher
     """
     # df_solar = pd.read_csv(solcastFile)
@@ -33,7 +34,7 @@ def crunchVisualCrossingSolcast(df_weather, df_solar, outPutFile):
     df_solar = df_solar.set_index("datetime")
 
     df_solar.drop(df_solar.columns.difference(
-        ["Ebh"]), axis=1, inplace=True)
+        ["Ghi"]), axis=1, inplace=True)
 
     df_weather["datetime"] = [datetime.fromisoformat(
         x) for x in df_weather["datetime"]]
@@ -47,8 +48,8 @@ def crunchVisualCrossingSolcast(df_weather, df_solar, outPutFile):
 
     df_weather = df_weather.join(df_solar)
 
-    df_weather['Ebh_NextDay'] = df_weather['Ebh'].shift(periods=-24)
-    cols_to_shift = df_weather.columns.difference(["Ebh", "Ebh_NextDay"])
+    df_weather['Ghi_NextDay'] = df_weather['Ghi'].shift(periods=-24)
+    cols_to_shift = df_weather.columns.difference(["Ghi", "Ghi_NextDay"])
 
     df_weather[cols_to_shift] = df_weather[cols_to_shift].shift(periods=-24)
 
@@ -67,11 +68,11 @@ def loadCrunchedSolVC(file):
 
     df.drop(["windgust"], axis=1, inplace=True)
 
-    df[df.columns.difference(["Ebh", "Ebh_NextDay"])] = df[df.columns.difference(
-        ["Ebh", "Ebh_NextDay"])].fillna(0)
+    df[df.columns.difference(["Ghi", "Ghi_NextDay"])] = df[df.columns.difference(
+        ["Ghi", "Ghi_NextDay"])].fillna(0)
     df.dropna(inplace=True)
 
-    df.drop(["Ebh", "conditions"], axis=1, inplace=True)
+    df.drop(["Ghi", "conditions"], axis=1, inplace=True)
 
     testingDate = datetime.fromisoformat(df["datetime"][0])
     datesToDelete = []
@@ -96,7 +97,7 @@ def loadCrunchedSolVC(file):
 
         # print(datetime.fromisoformat(df["datetime"][i]).timetuple().tm_yday)
 
-        xTemp = df[i:i+forecastTime].drop(["datetime", "Ebh_NextDay"], axis=1)
+        xTemp = df[i:i+forecastTime].drop(["datetime", "Ghi_NextDay"], axis=1)
         dayOfTheYear = datetime.fromisoformat(
             df["datetime"][i]).timetuple().tm_yday
         xTemp["dayOfTheYear"] = [dayOfTheYear] * forecastTime
@@ -107,7 +108,7 @@ def loadCrunchedSolVC(file):
         #xTemp = np.append(xTemp,[dayOfTheYear],axis=0)
 
         x.append(xTemp)
-        y.append([sum(np.array(df["Ebh_NextDay"][i:i+forecastTime]))])
+        y.append([sum(np.array(df["Ghi_NextDay"][i:i+forecastTime]))])
 
     return x, y
 
@@ -160,12 +161,25 @@ def printBaseLine(y, roundDecimal=2):
     print(f"Shifted baseline: mae : {mae}, mse : {mse}")
 
 
-if __name__ == "__main__":
-    file = "./data/Crunched/S_V_Dev8.csv"
+def plot_metrics(history, metrics):
+    for n, metric in enumerate(metrics):
+        name = metric.replace("_", " ").capitalize()
+        plt.subplot(len(metrics), 1, n+1)
+        plt.plot(history.epoch,
+                 history.history[metric], color="C1", label='Train')
+        plt.plot(history.epoch, history.history['val_'+metric],
+                 color="C0", linestyle="--", label='Val')
+        plt.xlabel('Epoch')
+        plt.ylabel(name)
 
-    # df_weather, df_solcast = loadDFsToCrunch()
-    # crunchVisualCrossingSolcast(df_weather,df_solcast,file)
-    # exit()
+        plt.legend()
+
+
+if __name__ == "__main__":
+    file = "./data/Crunched/S_V_Dev9.csv"
+
+    df_weather, df_solcast = loadDFsToCrunch()
+    crunchVisualCrossingSolcast(df_weather, df_solcast, file)
 
     x, y = loadCrunchedSolVC(file)
 
@@ -175,13 +189,22 @@ if __name__ == "__main__":
     # x = x.reshape(length,sX,yX,1)
     y = np.asarray(y)
 
-    test_size = 0.15
+    test_size = 0.16
     length = len(y)
     X_train, X_test, y_train, y_test = (
         x[0:int(length*(1-test_size))],
         x[int(length*(1-test_size)):],
         y[0:int(length*(1-test_size))],
         y[int(length*(1-test_size)):],
+    )
+    val_length = 360
+    length = len(y_train)
+
+    X_train, X_val, y_train, y_val = (
+        X_train[0:length - val_length],
+        X_train[length - val_length:],
+        y_train[0:length - val_length],
+        y_train[length - val_length:],
     )
 
     # scaler = StandardScaler()
@@ -193,21 +216,20 @@ if __name__ == "__main__":
     # y_test = scaler.transform(y_test)
 
     print(
-        f"Datapoints: {len(x)}, y_train len: {len(y_train) }, y_test len: {len(y_test)}")
+        f"Datapoints: {len(x)}, y_train len: {len(y_train) },y_val len: {len(y_val) }, y_test len: {len(y_test)}")
 
     model = Sequential()
     model.add(layers.BatchNormalization(input_shape=(x[0].shape)))
     model.add(layers.Conv1D(filters=64, kernel_size=3, activation='relu'))
     model.add(layers.MaxPooling1D(pool_size=2))
-    model.add(layers.Conv1D(filters=64, kernel_size=3, activation='relu'))
+    # model.add(layers.Conv1D(filters=64, kernel_size=3, activation='relu'))
     model.add(layers.LSTM(units=64, return_sequences=True))
     # model.add(layers.BatchNormalization())
     model.add(layers.Flatten())
     model.add(Dense(200, activation="relu"))
-    model.add(layers.Dropout(0.5))
     model.add(Dense(100, activation="relu"))
-    model.add(layers.Dropout(0.5))
     model.add(Dense(50, activation="relu"))
+    model.add(layers.Dropout(0.2))
     model.add(Dense(1))
 
     model.compile(loss="mean_squared_error", optimizer="adam",
@@ -215,20 +237,27 @@ if __name__ == "__main__":
 
     # tf.keras.utils.plot_model(model, to_file="NN_Diagramm.png", show_shapes=True)
 
-    rollingWindow = 360
-    valWindow = 60
+    rollingWindow = 1000
     batchsize = 64
-    for i in range(0, len(X_train) - rollingWindow-valWindow, 10):
-        model.fit(X_train[i:i+rollingWindow], y_train[i:i+rollingWindow], epochs=1, batch_size=batchsize, verbose=1,
-                  validation_data=(X_train[i+rollingWindow:i+rollingWindow+valWindow], y_train[i+rollingWindow:i+rollingWindow+valWindow]))
+    # for i in range(0, len(X_train) - rollingWindow, 10):
+    #     model.fit(X_train[i:i+rollingWindow], y_train[i:i+rollingWindow], epochs=1, batch_size=batchsize, verbose=1,
+    #               validation_data=(X_val, y_val)
+    #               )
+
+    trainHistory = model.fit(X_train, y_train, epochs=55, batch_size=batchsize, verbose=1,
+                             validation_data=(X_val, y_val)
+                             )
 
     score = model.evaluate(X_test, y_test, verbose=0)
 
     roundDecimal = 2
     print("\n\nTest results:")
-    print('  Mean absolute error:', round(score[1], roundDecimal))
-    print('  Mean squared error :', round(score[0], roundDecimal))
+    print('Mean absolute error:', round(score[1], roundDecimal))
+    print('Mean squared error :', round(score[0], roundDecimal))
 
     printBaseLine(y_test, roundDecimal)
+
+    plot_metrics(trainHistory, metrics=["mean_absolute_error"])
+    plt.show()
 
     model.save("./models/VisualCrossing_LSTM_model.h5")

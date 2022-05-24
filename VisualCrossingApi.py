@@ -7,16 +7,18 @@ from datetime import datetime
 
 def getForcast():
     r = get(
-        f"https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/gampelen/tomorrow?include=fcst%2Cobs%2Chistfcst%2Cstats%2Chours&key={API_KEY_VC}&contentType=json")
+        f"https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/gampelen/tomorrow?include=fcst%2Cobs%2Chistfcst%2Cstats%2Chours&key={API_KEY_VC}&contentType=json"
+    )
 
     if r.status_code == 200:
-        return jsonToDF(r.json())
+        data = json.loads(r.text)
+        return jsonToDF(data)
     else:
         return None
 
 
 def jsonToDF(j):
-    hours = j[0]["days"][0]["hours"]
+    hours = j["days"][0]["hours"]
 
     # Could be done with a single dict and a list comprehension but it's more readable this way
     #'temp', 'feelslike', 'humidity', 'precip', 'windspeed', 'winddir','sealevelpressure', 'cloudcover', 'conditions', 'dayOfTheYear'
@@ -42,7 +44,7 @@ def exampleResponse(fileName):
     with open(fileName) as f:
         data.append(json.load(f))
 
-    return jsonToDF(data)
+    return jsonToDF(data[0])
 
 
 if __name__ == "__main__":
@@ -51,6 +53,6 @@ if __name__ == "__main__":
     with open(fileName) as f:
         data.append(json.load(f))
 
-    df = jsonToDF(data)
+    df = getForcast()
     print(df)
     # print(data)

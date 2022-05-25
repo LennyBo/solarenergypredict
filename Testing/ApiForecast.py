@@ -1,7 +1,7 @@
 # imports the two solar installation at my home
-from Solar_Lib import solarSouth, solarNorth, ghiToPower
+from SolarTools.Solar_Lib import solarSouth, solarNorth, ghiToPower
 from tensorflow import keras
-from VisualCrossingApi import getForcast, exampleResponse
+from SolarTools.VisualCrossingApi import getForcast, exampleResponse
 from datetime import datetime
 import numpy as np
 from tensorflow.keras.utils import to_categorical

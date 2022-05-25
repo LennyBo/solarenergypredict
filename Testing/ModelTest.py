@@ -3,7 +3,7 @@ from tensorflow import keras
 import pandas as pd
 from datetime import datetime, date
 import numpy as np
-from Solar_Lib import ghiToPower
+from SolarTools.Solar_Lib import ghiToPower
 from sklearn.metrics import mean_absolute_error
 
 # Time to execute 42s

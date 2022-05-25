@@ -19,11 +19,22 @@ def Gti(Ghi, zenith, tilt):
 
 
 def dailyGhiToHourly(Ghi, date):
+    """Takes a sum Ghi of a day and a date and estimates the hourly Ghi
+
+    Args:
+        Ghi (float): Ghi sum of a day
+        date (datetime): date of the day
+
+    Returns:
+        pd.DataFrame: datetime(hourly) -> Ghi
+    """
+    # An array of hourly datetimes
     zenithsDateT = np.arange(
         date, date + timedelta(hours=24), timedelta(hours=1), dtype='datetime64')
-
+    # Transoform the datetimes to angle of the sun (zenith)
     zeniths = (90 - get_solarposition(zenithsDateT, 47, 7.02)[
         "zenith"].clip(-90, 90)).tolist()
+    
     factors = [x * (1/sum(zeniths)) for x in zeniths]
     GhiHourly = [f * Ghi for f in factors]
     df = pd.DataFrame(

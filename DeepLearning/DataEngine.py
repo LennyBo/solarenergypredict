@@ -9,14 +9,6 @@ def JoinSolcastVC(df_weather, df_solar):
     Takes the Ghi of the solcast set and the weather
     of the visualCrossing set and puts it togetgher
     """
-    # df_solar = pd.read_csv(solcastFile)
-
-    # # Transform from str into datetime
-
-    # df_weather = pd.read_csv(visualCrossingFile)
-
-    # print(datetime.fromisoformat(df_weather["datetime"][0]))
-
     df_solar["datetime"] = [datetime.fromisoformat((x[:-1])) for x in df_solar["PeriodStart"]]
     df_solar = df_solar.set_index("datetime")
 
@@ -44,36 +36,37 @@ def JoinSolcastVC(df_weather, df_solar):
 
     return df_weather
 
-
 def Preprocessing(df):
-    
+    # 24 hours each day (we could slice just the day part but it does not improve the model and makes everything more complicated)
     forecastLength = 24
+    # If datetime is the index, we need to move it back into the set
     if "datetime" not in df.columns:
         df = df.reset_index()
+        
     # Process Nan's
+    df.drop(["windgust","Ghi", "conditions"], axis=1, inplace=True) # These clumns are not needed to improve predictions
     
-    df.drop(["windgust","Ghi", "conditions"], axis=1, inplace=True)
-    
+    # Fillna 0 on all the columns except Ghi and Ghi_NextDay as these two have nan's only because the set ends sooner
     df[df.columns.difference(["Ghi", "Ghi_NextDay"])] = df[df.columns.difference(["Ghi", "Ghi_NextDay"])].fillna(0)
+    
+    # This will remove all the rows that have nan's in the Ghi and Ghi_NextDay columns $
     df.dropna(inplace=True)
     
     if(df["datetime"].dtype != "datetime64[ns]"):
         df["datetime"] = pd.to_datetime(df["datetime"])
+    
     x = []
     y = []
-    for i in range(0, len(df), 24):
+    for i in range(0, len(df), 24): # For each 24 hours
+        xTemp = df[i:i+forecastLength].drop(["datetime", "Ghi_NextDay"], axis=1) # Slice the day
         
-        xTemp = df[i:i+forecastLength].drop(["datetime", "Ghi_NextDay"], axis=1)
-        if(len(xTemp) != forecastLength):
-            print("Something is weird")
-            continue
         # Adding day of the year to the set
         dayOfTheYear = df["datetime"][i].timetuple().tm_yday
         xTemp["dayOfTheYear"] = [dayOfTheYear] * len(xTemp)
 
         xTemp = np.asarray(xTemp)
         x.append(xTemp)
-        y.append([sum(np.array(df["Ghi_NextDay"][i:i+forecastLength]))])
+        y.append([sum(np.array(df["Ghi_NextDay"][i:i+forecastLength]))]) # Add the sum ghi of the next day to y
 
     return np.asarray(x), np.asarray(y)
 
@@ -91,8 +84,7 @@ def loadDFsToCrunch(dataDir="./data/"):
     df_weather = pd.read_csv(weatherCSVs[0])
     
     for f in weatherCSVs[1::]:
-        df_weather = pd.concat([df_weather, pd.read_csv(
-            f)], axis=0, ignore_index=True, sort=False)
+        df_weather = pd.concat([df_weather, pd.read_csv(f)], axis=0, ignore_index=True, sort=False)
 
     df_solcast = pd.read_csv(dataDir + "solcast/47.014664_7.057895_Solcast_PT60M.csv")
 

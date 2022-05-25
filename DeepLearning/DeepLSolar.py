@@ -15,10 +15,17 @@ def mean(array):
 
 
 def getBaselines(x, y):
+    """Returns mae and mse of the 2 arrrays"""
     return (round(mean_absolute_error(x, y), roundDecimal), round(mean_squared_error(x, y), roundDecimal))
 
 
 def printBaseLine(y, roundDecimal=2):
+    """prints baselines of the y axis
+
+    Args:
+        y (arraylike): y axis to evaluate
+        roundDecimal (int, optional): amount of decimals to round to. Defaults to 2.
+    """
     meanX = [mean(y)] * len(y)
     medianX = [np.median(y)] * len(y)
     shiftedX = y[:-1:]
@@ -36,6 +43,12 @@ def printBaseLine(y, roundDecimal=2):
 
 
 def plot_metrics(history, metrics):
+    """Plots metric history of each epoch
+
+    Args:
+        history (array): History of the training
+        metrics (array): each metrics name (used for the legend)
+    """
     for n, metric in enumerate(metrics):
         name = metric.replace("_", " ").capitalize()
         plt.subplot(len(metrics), 1, n+1)

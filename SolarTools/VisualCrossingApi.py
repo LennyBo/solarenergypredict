@@ -21,18 +21,19 @@ def jsonToDF(j):
     hours = j["days"][0]["hours"]
 
     # Could be done with a single dict and a list comprehension but it's more readable this way
-    #'temp', 'feelslike', 'humidity', 'precip', 'windspeed', 'winddir','sealevelpressure', 'cloudcover', 'conditions', 'dayOfTheYear'
+    #'temp', 'feelslike', 'humidity', 'precip', 'windgust', 'windspeed','winddir', 'sealevelpressure', 'cloudcover', 'conditions', 'Ghi','Ghi_NextDay'
     data = {
         "datetime": [datetime.fromtimestamp(x["datetimeEpoch"]).isoformat() for x in hours],
         "temp": [x["temp"] for x in hours],
         "feelslike": [x["feelslike"] for x in hours],
         "humidity":  [x["humidity"] for x in hours],
         "precip": [x["precip"] for x in hours],
+        "windgust": [x["windgust"] for x in hours],
         "windspeed": [x["windspeed"] for x in hours],
         "winddir":  [x["winddir"] for x in hours],
         "sealevelpressure": [x["pressure"] for x in hours],
         "cloudcover":  [x["cloudcover"] for x in hours],
-        # "conditions": [x["conditions"] for x in hours],
+        "conditions": [x["conditions"] for x in hours],
     }
 
     df = pd.DataFrame(data)

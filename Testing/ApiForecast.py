@@ -1,42 +1,40 @@
-# imports the two solar installation at my home
-from SolarTools.Solar_Lib import solarSouth, solarNorth, ghiToPower
+import sys
+sys.path.append( '.' )
+from DeepLearning.DataEngine import Preprocessing
+from SolarTools.Solar_Lib import ghiToPower
 from tensorflow import keras
 from SolarTools.VisualCrossingApi import getForcast, exampleResponse
 from datetime import datetime
 import numpy as np
-from tensorflow.keras.utils import to_categorical
 
-model = keras.models.load_model('models/VisualCrossing_LSTM_model.h5')
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' # Removes console spam
 
+MODEL_TO_LOAD = 'VisualCrossing_LSTM_model.h5'
+
+print(f"Loading model {MODEL_TO_LOAD}...")
+model = keras.models.load_model('models/' + MODEL_TO_LOAD)
+
+print("Getting forecast...")
 # df = exampleResponse("exampleRequest.json")
 df = getForcast()
 
-forecastStart = 6  # 6 am
-forecastTime = 12  # 12 hours after 6 am
-x = []
-# df["conditions"] = to_categorical(np.asarray(df["conditions"].factorize()[0]))
-# print(df["conditions"])
+dateStrs = df["datetime"][0::24].tolist()
+print(dateStrs)
 
-dateTs = []
-for i in range(0+forecastStart, len(df), 24):
-    xTemp = df[i:i+forecastTime].drop(["datetime"], axis=1)
-    dateTs.append(datetime.fromisoformat(df["datetime"][i]))
-    dayOfTheYear = datetime.fromisoformat(
-        df["datetime"][i]).timetuple().tm_yday
+print("Predicting power output...")
 
-    xTemp["dayOfTheYear"] = [dayOfTheYear] * forecastTime
-    print(xTemp.columns)
-    xTemp = np.asarray(xTemp)
-    x.append(xTemp)
+df["Ghi"] = np.zeros(len(df))
+df["Ghi_NextDay"] = np.zeros(len(df))
 
-x = np.asarray(x).astype('float32')
-print(x.shape)
+x,_ = Preprocessing(df)
+
 res = model.predict(x)
 
 
-print(dateTs)
-for Ghi, dateT in zip(res, dateTs):
+for Ghi, dateStr in zip(res, dateStrs):
+    dateT = datetime.fromisoformat(dateStr)
     Ghi = Ghi[0]
     solarOutput = ghiToPower(Ghi, dateT)
 
-    print(f"{dateT.date()} : {round(solarOutput / 1000, 2)} kWh")
+    print(f"Forecast for the : {dateT.date()} -> {round(solarOutput / 1000, 2)} kWh")

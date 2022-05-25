@@ -1,4 +1,3 @@
-
 from datetime import datetime, timedelta
 import pytz
 import pandas as pd
@@ -13,7 +12,10 @@ from pvlib.solarposition import get_solarposition
 def Gti(Ghi, zenith, tilt):
     zenith = radians(zenith)
     tilt = radians(tilt)
-    return Ghi * sin(zenith + tilt).real
+    gti = Ghi * sin(zenith + tilt).real
+    if gti < 0:
+        gti = 0
+    return gti
 
 
 def dailyGhiToHourly(Ghi, date):
@@ -39,7 +41,6 @@ def ghiToPower(Ghi, date):
                   for x, y in zip(df["Ghi"], df["zenith"])]
     powerNorth = [solarNorth.GhiToPower(
         x, y) for x, y in zip(df["Ghi"], df["zenith"])]
-
     return sum(powerSouth + powerNorth)
 
 
@@ -68,17 +69,4 @@ solarNorth = SolarPanels(surface=surfaceNorth, tilt=-21)
 if __name__ == "__main__":
     from matplotlib import pyplot as plt
 
-    timezone = pytz.timezone("Europe/Zurich")
-    dateT = timezone.localize(datetime.fromisoformat("2020-03-22T00:00:00"))
-
-    zenithsDateT = np.arange(
-        dateT, dateT + timedelta(hours=24), timedelta(hours=1), dtype='datetime64')
-
-    zeniths = get_solarposition(zenithsDateT, 47, 7.02)
-    zeniths = zeniths.drop(zeniths.columns.difference(["zenith"]), 1)
-    zeniths["zenith"] = 90 - zeniths["zenith"].clip(-90, 90)
-    zeniths["zenith"] = zeniths["zenith"] * (1/sum(zeniths["zenith"]))
-    zeniths["zenith"] = 5178 * zeniths["zenith"]
-    zeniths.plot()
-    plt.legend(["Ghi"])
-    plt.show()
+    print(ghiToPower(2000))

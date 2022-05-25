@@ -6,9 +6,8 @@ from keras import layers
 from keras.models import Sequential
 from keras.layers import Dense
 from sklearn.metrics import mean_absolute_error, mean_squared_error
-import os
-import tensorflow as tf
 
+import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' # Removes console spam
 
 def mean(array):
@@ -65,7 +64,7 @@ if __name__ == "__main__":
     
     print("Preprocessing...")
     x,y = Preprocessing(df)
-    print(f"Done preprocessing.\tX: {len(x)}\tY: {len(y)}\n")
+    print(f"Done preprocessing.\tX: {len(x)} shape:{x.shape}\tY: {len(y)}\n")
     
     print(f"Splitting into train val and test with test size {TEST_SIZE * 100}%...")
     length = len(y)

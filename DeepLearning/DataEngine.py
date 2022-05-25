@@ -46,34 +46,36 @@ def JoinSolcastVC(df_weather, df_solar):
 
 
 def Preprocessing(df):
+    
     forecastLength = 24
-    df = df.reset_index()
+    if "datetime" not in df.columns:
+        df = df.reset_index()
     # Process Nan's
-    df.drop(["windgust"], axis=1, inplace=True)
-
+    
+    df.drop(["windgust","Ghi", "conditions"], axis=1, inplace=True)
+    
     df[df.columns.difference(["Ghi", "Ghi_NextDay"])] = df[df.columns.difference(["Ghi", "Ghi_NextDay"])].fillna(0)
     df.dropna(inplace=True)
-
-    df.drop(["Ghi", "conditions"], axis=1, inplace=True)
-
-    # df["conditions"] = to_categorical(
-    #     np.asarray(df["conditions"].factorize()[0]))
-
+    
+    if(df["datetime"].dtype != "datetime64[ns]"):
+        df["datetime"] = pd.to_datetime(df["datetime"])
     x = []
     y = []
-
-    for i in range(0, len(df) - 24, 24):
+    for i in range(0, len(df), 24):
+        
         xTemp = df[i:i+forecastLength].drop(["datetime", "Ghi_NextDay"], axis=1)
+        if(len(xTemp) != forecastLength):
+            print("Something is weird")
+            continue
         # Adding day of the year to the set
         dayOfTheYear = df["datetime"][i].timetuple().tm_yday
-        xTemp["dayOfTheYear"] = [dayOfTheYear] * forecastLength
+        xTemp["dayOfTheYear"] = [dayOfTheYear] * len(xTemp)
 
         xTemp = np.asarray(xTemp)
         x.append(xTemp)
         y.append([sum(np.array(df["Ghi_NextDay"][i:i+forecastLength]))])
 
     return np.asarray(x), np.asarray(y)
-
 
 def getFiles(inputDir):
     filesArray = []
@@ -83,7 +85,6 @@ def getFiles(inputDir):
             filesArray.append(inputDir + file)
 
     return filesArray
-
 
 def loadDFsToCrunch(dataDir="./data/"):
     weatherCSVs = getFiles(dataDir + "VisualCrossing/")

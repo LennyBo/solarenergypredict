@@ -35,6 +35,6 @@ res = model.predict(x)
 for Ghi, dateStr in zip(res, dateStrs):
     dateT = datetime.fromisoformat(dateStr)
     Ghi = Ghi[0]
-    solarOutput = ghiToPower(Ghi, dateT)
+    solarOutput = ghiToPower(Ghi)
 
     print(f"Forecast for the : {dateT.date()} -> {round(solarOutput / 1000, 2)} kWh")

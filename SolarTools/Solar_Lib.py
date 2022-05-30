@@ -1,78 +1,35 @@
-from datetime import datetime, timedelta
-import pytz
-import pandas as pd
 from math import radians
 from cmath import sin
-from pysolar.solar import get_altitude
-import pandas as pd
-import numpy as np
-from pvlib.solarposition import get_solarposition
 
-
-def Gti(Ghi, zenith, tilt):
-    zenith = radians(zenith)
-    tilt = radians(tilt)
-    gti = Ghi * sin(zenith + tilt).real
-    if gti < 0:
-        gti = 0
-    return gti
-
-
-def dailyGhiToHourly(Ghi, date):
-    """Takes a sum Ghi of a day and a date and estimates the hourly Ghi
-
-    Args:
-        Ghi (float): Ghi sum of a day
-        date (datetime): date of the day
-
-    Returns:
-        pd.DataFrame: datetime(hourly) -> Ghi
-    """
-    # An array of hourly datetimes
-    zenithsDateT = np.arange(
-        date, date + timedelta(hours=24), timedelta(hours=1), dtype='datetime64')
-    # Transoform the datetimes to angle of the sun (zenith)
-    zeniths = (90 - get_solarposition(zenithsDateT, 47, 7.02)[
-        "zenith"].clip(-90, 90)).tolist()
-    
-    factors = [x * (1/sum(zeniths)) for x in zeniths]
-    GhiHourly = [f * Ghi for f in factors]
-    df = pd.DataFrame(
-        {"datetime": zenithsDateT, "Ghi": GhiHourly, "zenith": zeniths}
-    )
-
-    return df
-
-
-def ghiToPower(Ghi, date):
-
-    df = dailyGhiToHourly(Ghi, date)
-
-    powerSouth = [solarSouth.GhiToPower(x, y)
-                  for x, y in zip(df["Ghi"], df["zenith"])]
-    powerNorth = [solarNorth.GhiToPower(
-        x, y) for x, y in zip(df["Ghi"], df["zenith"])]
-    return sum(powerSouth + powerNorth)
+def ghiToPower(Ghi):
+    powerSouth = solarSouth.GhiToPower(Ghi)
+    powerNorth = solarNorth.GhiToPower(Ghi)
+    return powerSouth + powerNorth
 
 
 class SolarPanels:
 
-    def __init__(self, surface, tilt, efficiency=0.2017, lat=47, lon=7.02) -> None:
+    def __init__(self, surface, tilt, efficiency=0.19, lat=47, lon=7.02) -> None:
         self.surface = surface
         self.tilt = tilt
         self.efficiency = efficiency
         self.lat = lat
         self.lon = lon
+        self.tranforCoef = self.surface * sin(radians(self.tilt + self.lat)).real * self.efficiency
 
     def power(self, gti):
         return self.surface * gti * self.efficiency
 
-    def GhiToPower(self, Ghi, zenith):
-        return self.power(Gti(Ghi, zenith, self.tilt))
+    def GhiToPower(self, Ghi):
+        return Ghi * self.tranforCoef
 
 
 surfaceSouth = 38 * 2  # 38 panels * 2 m²
 surfaceNorth = 36 * 2  # 36 panels * 2 m²
+
+# print("Surface South:", sin(radians(21+47)).real)
+# print("Surface North:", sin(radians(-21+47)).real)
+# print("Surface Total:", surfaceSouth * sin(radians(21+47)).real * 0.19 + surfaceNorth * sin(radians(-21+47)).real * 0.19)
 
 solarSouth = SolarPanels(surface=surfaceSouth, tilt=21)
 solarNorth = SolarPanels(surface=surfaceNorth, tilt=-21)

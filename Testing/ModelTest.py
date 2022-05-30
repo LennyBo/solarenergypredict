@@ -5,8 +5,7 @@ from DeepLearning.DataEngine import Preprocessing,loadDFsToCrunch
 import matplotlib.pyplot as plt
 from tensorflow import keras
 import pandas as pd
-from datetime import datetime, timedelta
-import numpy as np
+from datetime import datetime
 from SolarTools.Solar_Lib import ghiToPower
 from sklearn.metrics import mean_absolute_error
 
@@ -36,14 +35,14 @@ x, y = Preprocessing(df_weather)
 
 
 print("predicting...")
-model = keras.models.load_model('models/VisualCrossing_LSTM_model.h5')
+model = keras.models.load_model('./models/VisualCrossing_LSTM_model.h5')
 # model = keras.models.load_model('models/400MaeModel.h5')
 y_pred = model.predict(x)  # Predicts sum Ghi of each date
 
 print("calculating wh...")
 # Transforming the ghi to wh
-y_pred = [ghiToPower(y, d)[0] for y, d in zip(y_pred, dates)]  # Converts to power (wh)
-y_calced = [ghiToPower(y, d)[0] for y, d in zip(y, dates)]  # Converts to power (wh)
+y_pred = [ghiToPower(y[0]) for y, d in zip(y_pred, dates)]  # Converts to power (wh)
+y_calced = [ghiToPower(y[0]) for y, d in zip(y, dates)]  # Converts to power (wh)
 
 print("plotting...")
 df_SolarEdge["date"] = [datetime.fromisoformat(s) for s in df_SolarEdge["date"]]
@@ -59,7 +58,7 @@ for e, d1, d2 in zip(df_SolarEdge["energy"], df_SolarEdge["date"], dates):
         exit(-1)
     y_true.append(e)
 
-
+yf = y.flatten()
 # Create a df to plot all the values
 df = pd.DataFrame({"date": dates, "y_pred": y_pred,"y_true": y_true, "y_calced": y_calced})
 df.set_index("date", inplace=True)

@@ -1,7 +1,7 @@
 import sys
-sys.path.append( '.' )
+sys.path.append( '.' ) # Adds parent directory so we can import other modules
 from DeepLearning.DataEngine import Preprocessing
-from SolarTools.Solar_Lib import ghiToPower
+from SolarTools.SolarLib import ghiToPower
 from tensorflow import keras
 from SolarTools.VisualCrossingApi import getForcast, exampleResponse
 from datetime import datetime
@@ -20,7 +20,7 @@ print("Getting forecast...")
 df = getForcast()
 
 dateStrs = df["datetime"][0::24].tolist()
-print(dateStrs)
+# print(dateStrs)
 
 print("Predicting power output...")
 

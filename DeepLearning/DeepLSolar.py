@@ -99,6 +99,7 @@ if __name__ == "__main__":
     print(f"Done splitting.\tTrain: {len(X_train)}\tVal: {len(X_val)}\tTest: {len(X_test)}\n")
     
     print("Compiling model...\n")
+    
     model = Sequential()
     model.add(layers.BatchNormalization(input_shape=(x[0].shape)))
     model.add(layers.Conv1D(filters=64, kernel_size=3, activation='relu'))

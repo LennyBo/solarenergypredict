@@ -2,6 +2,8 @@ import streamlit as st
 import time
 import numpy as np
 from PIL import Image
+import requests
+from datetime import datetime
 st.set_page_config(layout="wide") # Needs to be the first st command
 
 
@@ -55,21 +57,13 @@ class SolarWidget (UpdateingWidget):
         super().__init__(column,'WebServer/images/solar_logo.png')
         
     def init(self):
-        self.solarProd = 0
-        self.gridProd = 0
         self.solar = self.column.markdown("")
         self.grid = self.column.markdown("")
     
-    def update(self):
-        self.api_call()
+    def update(self):        
+        self.solar.markdown(f'#### Solar: {currentData["solar_power"]} kw')
+        self.grid.markdown(f'#### Grid: {currentData["grid_power"]} kw')
         
-        self.solar.markdown(f'#### Solar: {round(self.solarProd)} kw')
-        self.grid.markdown(f'#### Grid: {round(self.gridProd)} kw')
-        
-    def api_call(self):
-        # TODO: Modbus call
-        self.solarProd = self.solarProd + np.random.uniform(-100,200)
-        self.gridProd = self.gridProd + np.random.uniform(-100,100)
         
 class HeaterWidget (UpdateingWidget):
     
@@ -80,7 +74,7 @@ class HeaterWidget (UpdateingWidget):
     def init(self):
         self.i = 0
         self.mode = self.column.markdown("#### Mode: Overdrive")
-        self.powerToday = self.column.markdown("#### Power today: 16 kwh")
+        self.powerToday = self.column.markdown("#### Power : 16 kw")
         self.powerDistributionLabel = self.column.markdown("#### Power distribution: 10%")
         self.powerDistributionProg = self.column.progress(self.i)
         
@@ -88,7 +82,7 @@ class HeaterWidget (UpdateingWidget):
         self.i += 1
         
         # self.mode = self.column.markdown("#### Mode: Overdrive")
-        # self.powerToday = self.column.markdown("#### Power today: 16 kwh")
+        self.powerToday.markdown(f'#### Power : {currentData["heater_power"]} kw')
         # self.column.markdown("#### Power distribution: 10%")
         self.powerDistributionLabel.markdown(f"#### Power distribution: {self.i}%")
         self.powerDistributionProg.progress(self.i % 100)
@@ -106,10 +100,22 @@ class TeslaWallChargerWidget (UpdateingWidget):
         self.column.markdown("#### Power Today: 10%")
         self.powerDistribution = self.column.progress(10)
         
+def apiUpdate():
+    res = requests.get('http://localhost:8080/house/power')
+    if res.status_code == 200:
+        jsonRes = res.json()
+        if jsonRes['status'] == 'ok':
+            return jsonRes['data']
+        else:
+            print(f'{datetime.now()} error: {jsonRes["status"]}')
+    else:
+        print("Error: " + str(res.status_code))        
+
 def local_css(file_name):
     with open(file_name) as f:
         st.markdown('<style>{}</style>'.format(f.read()), unsafe_allow_html=True)
 
+currentData = apiUpdate()
 
 local_css("WebServer/style.css")
 
@@ -125,7 +131,9 @@ wc.add_widget(SolarWidget)
 wc.add_widget(HeaterWidget)
 wc.add_widget(TeslaWallChargerWidget)
 
+
 while True:
+    currentData = apiUpdate()
     wc.update_all()
     time.sleep(1)
 

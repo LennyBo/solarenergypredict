@@ -1,10 +1,12 @@
 import sys
+from urllib import response
 sys.path.append( '.' ) # Adds parent directory so we can import other modules
 import time
 import schedule
 import numpy as np
 from datetime import datetime,timedelta
 from DatabaseModule import DatabaseModule
+import requests
 
 every = 1 # minutes
 
@@ -19,8 +21,17 @@ def get_next_job_time(time, interval):
 
 def update():
     print(f'{datetime.now()} job')
-    d = datetime.now().replace(second=0, microsecond=0)
-    db.insert_data({'time':d,'solar_power': get_rnd_value(), 'grid_power': get_rnd_value(), 'house_power': get_rnd_value(), 'twc_power': get_rnd_value(), 'heater_power': get_rnd_value(), 'heater_mode': 'Overdrive'})
+    res = requests.get('http://localhost:8080/house/power')
+    if res.status_code == 200:
+        data = res.json()
+        if data['status'] == 'ok':
+            db.insert_data(data['data'])
+        else:
+            print(f'{datetime.now()} error: {data["status"]}')
+    else:
+        print("Error: " + str(res.status_code))
+
+
     df = db.select_data_day(datetime.now().date())
 
     print(df)
@@ -28,9 +39,6 @@ def update():
     schedule.every((nextJobTime - datetime.now()).total_seconds()).seconds.do(update)
     
     return schedule.CancelJob
-
-
-
 
 db = DatabaseModule('data/SolarDatabase.db',True)
 

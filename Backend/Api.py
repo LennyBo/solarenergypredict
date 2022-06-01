@@ -49,5 +49,8 @@ def power():
         }
     return json.dumps({"status": "ok", "data": di}).encode('utf-8')
     
+@get('/ping')
+def power():
+    return ["pong"]
 
-run(host='localhost', port=8080, debug=True)
+run(host='localhost', port=8080, debug=False,server='cheroot')

@@ -6,7 +6,6 @@ import numpy as np
 from datetime import datetime,timedelta
 from DatabaseModule import DatabaseModule
 
-
 every = 1 # minutes
 
 def get_rnd_value():
@@ -20,10 +19,11 @@ def get_next_job_time(time, interval):
 
 def update():
     print(f'{datetime.now()} job')
-    db.insert_data({'SOLAR_POWER': get_rnd_value(), 'GRID_POWER': get_rnd_value(), 'HOUSE_POWER': get_rnd_value(), 'TWC_POWER': get_rnd_value(), 'HEAT_POWER': get_rnd_value(), 'HEATER_MODE': 'Overdrive'})
+    d = datetime.now().replace(second=0, microsecond=0)
+    db.insert_data({'time':d,'solar_power': get_rnd_value(), 'grid_power': get_rnd_value(), 'house_power': get_rnd_value(), 'twc_power': get_rnd_value(), 'heater_power': get_rnd_value(), 'heater_mode': 'Overdrive'})
     df = db.select_data_day(datetime.now().date())
 
-    # print(df)
+    print(df)
     nextJobTime = get_next_job_time(datetime.now(), every)
     schedule.every((nextJobTime - datetime.now()).total_seconds()).seconds.do(update)
     
@@ -31,18 +31,23 @@ def update():
 
 
 
-db = DatabaseModule('data/SolarDatabase.db')
 
-update()
+db = DatabaseModule('data/SolarDatabase.db',True)
+
 
 # nextJobTime = get_next_job_time(datetime.now(), every)
 # schedule.every((nextJobTime - datetime.now()).total_seconds()).seconds.do(test)
+
+# run(host='localhost', port=8080, debug=True)
+update()
 try:
     while True:
         schedule.run_pending()
         time.sleep(1)
 finally:
-    from Tools.Telegram import easyMessage
-    easyMessage("Solar Energy Predict: exception encountered")
+    # from Tools.Telegram import easyMessage
+    # easyMessage("Solar Energy Predict: exception encountered")
     schedule.clear()
+    
+    exit(0)
 # threading.Timer(5, update).start()

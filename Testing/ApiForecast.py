@@ -1,9 +1,9 @@
 import sys
 sys.path.append( '.' ) # Adds parent directory so we can import other modules
 from DeepLearning.DataEngine import Preprocessing
-from SolarTools.SolarLib import ghiToPower
+from Tools.SolarLib import ghiToPower
 from tensorflow import keras
-from SolarTools.VisualCrossingApi import getForcast, exampleResponse
+from Tools.VisualCrossingApi import getForcast, exampleResponse
 from datetime import datetime
 import numpy as np
 

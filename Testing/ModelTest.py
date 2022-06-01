@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from tensorflow import keras
 import pandas as pd
 from datetime import datetime
-from SolarTools.SolarLib import ghiToPower
+from Tools.SolarLib import ghiToPower
 from sklearn.metrics import mean_absolute_error
 
 

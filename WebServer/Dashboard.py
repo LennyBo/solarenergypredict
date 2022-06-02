@@ -61,8 +61,8 @@ class SolarWidget (UpdateingWidget):
         self.grid = self.column.markdown("")
     
     def update(self):        
-        self.solar.markdown(f'#### Solar: {currentData["solar_power"]} kw')
-        self.grid.markdown(f'#### Grid: {currentData["grid_power"]} kw')
+        self.solar.metric(label='Solar: ',value=f'{currentData["solar_power"]} kw')# ,delta=-1.2)
+        self.grid.metric(label='Grid: ',value=f'{currentData["grid_power"]} kw')
         
 class HeaterWidget (UpdateingWidget):
     
@@ -130,7 +130,6 @@ wc.add_widget(SolarWidget)
 wc.add_widget(HeaterWidget)
 wc.add_widget(TeslaWallChargerWidget)
 
-import altair as alt
 import pandas as pd
 
 res = requests.get('http://localhost:8080/solar/day')
@@ -143,15 +142,33 @@ if res.status_code == 200:
 else:
     print("Error: " + str(res.status_code))
 
-df = df.drop(['heater_mode'], axis=1).set_index('time')
-print(df)
-# chart = alt.Chart(df.reset_index()).mark_area(opacity=0.3).encode(
-#     x='index:T',
-#     y='x'
-# )
-# st.altair_chart(chart, use_container_width=True)
-st.area_chart(df)
+df['time'] = df['time'].apply(lambda x: datetime.fromisoformat(x))
+df.set_index('time', inplace=True)
 
+sliced = df['2022-06-02 12:50':'2022-06-02 13:30']
+print(sliced)
+
+df['import'] = df['grid_power'].apply(lambda x: abs(x) if x < 0 else 0)
+df['export'] = df['grid_power'].apply(lambda x: x if x > 0 else 0)
+df['selfused'] = df['solar_power'] - df['export']
+
+
+df = df.drop(df.columns.difference(['import','export','selfused']), axis=1)
+
+import altair as alt
+data = df.T.reset_index()
+data = pd.melt(data, id_vars=["index"]).rename(columns={"index": "type", "value": "power"})
+chart = (
+    alt.Chart(data)
+    .mark_area(opacity=0.6)
+    .encode(
+        x="time:T",
+        y=alt.Y("power:Q", stack=True),
+        color="type:N",
+        tooltip=['time',"power","type"]
+    )
+)
+st.altair_chart(chart, use_container_width=True)
 
 while True:
     currentData = apiUpdate()

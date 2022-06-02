@@ -10,6 +10,7 @@ __pycache__/
 secret.py
 
 models/
+data/*.db
 
 # C extensions
 *.so

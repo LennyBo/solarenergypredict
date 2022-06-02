@@ -64,7 +64,6 @@ class SolarWidget (UpdateingWidget):
         self.solar.markdown(f'#### Solar: {currentData["solar_power"]} kw')
         self.grid.markdown(f'#### Grid: {currentData["grid_power"]} kw')
         
-        
 class HeaterWidget (UpdateingWidget):
     
     def __init__(self, column):
@@ -119,7 +118,7 @@ currentData = apiUpdate()
 
 local_css("WebServer/style.css")
 
-st.sidebar.header("Tesla Wall Charger")
+# st.sidebar.header("Tesla Wall Charger")
 
 colsPerRow = 3
 widgetCount = 3
@@ -130,6 +129,28 @@ wc = WidgetController(colsPerRow,widgetCount)
 wc.add_widget(SolarWidget)
 wc.add_widget(HeaterWidget)
 wc.add_widget(TeslaWallChargerWidget)
+
+import altair as alt
+import pandas as pd
+
+res = requests.get('http://localhost:8080/solar/day')
+if res.status_code == 200:
+    data = res.json()
+    if data['status'] == 'ok':
+        df = pd.DataFrame(data['data'])
+    else:
+        print(f'{datetime.now()} error: {data["status"]}')
+else:
+    print("Error: " + str(res.status_code))
+
+df = df.drop(['heater_mode'], axis=1).set_index('time')
+print(df)
+# chart = alt.Chart(df.reset_index()).mark_area(opacity=0.3).encode(
+#     x='index:T',
+#     y='x'
+# )
+# st.altair_chart(chart, use_container_width=True)
+st.area_chart(df)
 
 
 while True:

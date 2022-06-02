@@ -40,7 +40,7 @@ def update():
     
     return schedule.CancelJob
 
-db = DatabaseModule('data/SolarDatabase.db',True)
+db = DatabaseModule('data/SolarDatabase.db',False)
 
 
 # nextJobTime = get_next_job_time(datetime.now(), every)

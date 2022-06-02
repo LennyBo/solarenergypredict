@@ -5,6 +5,7 @@ from bottle import run, post, request, response,get
 from datetime import date,datetime
 import numpy as np
 from Backend.DatabaseModule import DatabaseModule
+from Tools.SolarEdgeModbus import CallModbus
 
 def get_rnd_value():
     return np.random.randint(0, 100)
@@ -38,8 +39,12 @@ db = DatabaseModule('data/SolarDatabase.db')
 @get('/house/power')
 def power():
     d = datetime.now().replace(second=0, microsecond=0)
+    # solar_edge = CallModbus()
     di = {
         'time':d.isoformat(),
+        # 'solar_power': solar_edge['solar'], 
+        # 'grid_power': solar_edge['grid'], 
+        # 'house_power': solar_edge['house'], 
         'solar_power': get_rnd_value(), 
         'grid_power': get_rnd_value(), 
         'house_power': get_rnd_value(), 

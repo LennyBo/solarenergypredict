@@ -3,7 +3,8 @@ import time
 import numpy as np
 from PIL import Image
 import requests
-from datetime import datetime
+from datetime import datetime,date, timedelta
+import pandas as pd
 st.set_page_config(layout="wide") # Needs to be the first st command
 
 
@@ -119,6 +120,29 @@ def local_css(file_name):
     with open(file_name) as f:
         st.markdown('<style>{}</style>'.format(f.read()), unsafe_allow_html=True)
 
+def get_daily_data(d):
+    print(d)
+    res = requests.get('http://localhost:8080/solar/day?date=' + d.strftime('%Y-%m-%d'))
+    if res.status_code == 200:
+        data = res.json()
+        if data['status'] == 'ok':
+            return pd.DataFrame(data['data'])
+        else:
+            print(f'{datetime.now()} error: {data["status"]}')
+    else:
+        print("Error: " + str(res.status_code))
+
+def get_date():
+    getQ = st.experimental_get_query_params()
+    if 'date' in getQ:
+        dStr = getQ['date'][0]
+        try:
+            return datetime.strptime(dStr, '%Y-%m-%d')
+        except ValueError:
+            st.error(f'Invalid date format: {dStr}')
+    return date.today()
+    
+
 currentData = apiUpdate()
 
 local_css("WebServer/style.css")
@@ -135,17 +159,10 @@ wc.add_widget(SolarWidget)
 wc.add_widget(HeaterWidget)
 wc.add_widget(TeslaWallChargerWidget)
 
-import pandas as pd
 
-res = requests.get('http://localhost:8080/solar/day')
-if res.status_code == 200:
-    data = res.json()
-    if data['status'] == 'ok':
-        df = pd.DataFrame(data['data'])
-    else:
-        print(f'{datetime.now()} error: {data["status"]}')
-else:
-    print("Error: " + str(res.status_code))
+date_ = get_date()
+df = get_daily_data(date_)
+
 
 df['time'] = df['time'].apply(lambda x: datetime.fromisoformat(x))
 df.set_index('time', inplace=True)
@@ -162,14 +179,23 @@ df['export'] = df['grid_power'].apply(lambda x: x if x > 0 else 0)
 df = df.drop(df.columns.difference(['heater_power','twc_power',"house_power","export"]), axis=1).rename(columns={"heater_power":"2_Heater","twc_power":"1_Tesla","house_power":"3_House","export":"0_Export"})
 
 
-#          export,    heater,   house,   tesla
-colors = ['#00ff00','#20da3f','#e4852b','#0000ff']
+
+colors = ['#00ff00','#ff1803','#e4852b','#0000ff']
 
 import altair as alt
 data = df.T.reset_index()
 data = pd.melt(data, id_vars=["index"]).rename(columns={"index": "type", "value": "power"})
 
 print(data[:10])
+
+
+st.title(f"Power summary of the {date_.strftime('%d-%m-%Y')}")
+
+colPrev,_,colNext = st.columns(3)
+
+
+colPrev.write(f"<a href='?date={(date_ - timedelta(days=1)).strftime('%Y-%m-%d')}' target='_self'><-</a>", unsafe_allow_html=True)
+colNext.write(f"<a href='?date={(date_ + timedelta(days=1)).strftime('%Y-%m-%d')}' target='_self'>-></a>", unsafe_allow_html=True)
 
 chart = (
     alt.Chart(data)

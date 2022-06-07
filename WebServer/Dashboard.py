@@ -57,12 +57,12 @@ class SolarWidget (UpdateingWidget):
         super().__init__(column,'WebServer/images/solar_logo.png')
         
     def init(self):
-        self.solar = self.column.markdown("")
-        self.grid = self.column.markdown("")
+        self.txtSolar = self.column.empty()
+        self.txtGrid = self.column.empty()
     
-    def update(self):        
-        self.solar.metric(label='Solar: ',value=f'{currentData["solar_power"]} kw')# ,delta=-1.2)
-        self.grid.metric(label='Grid: ',value=f'{currentData["grid_power"]} kw')
+    def update(self):
+        self.txtSolar.metric(label='Solar: ',value=f'{currentData["solar_power"]} w')# ,delta=-1.2)
+        self.txtGrid.metric(label='Grid: ',value=f'{currentData["grid_power"]} w')
         
 class HeaterWidget (UpdateingWidget):
     
@@ -72,19 +72,19 @@ class HeaterWidget (UpdateingWidget):
     
     def init(self):
         self.i = 0
-        self.mode = self.column.markdown("#### Mode: Overdrive")
-        self.powerToday = self.column.markdown("#### Power : 16 kw")
-        self.powerDistributionLabel = self.column.markdown("#### Power distribution: 10%")
-        self.powerDistributionProg = self.column.progress(self.i)
+        self.txtMode = self.column.empty()
+        self.txtCurrentPower = self.column.empty()
+        # self.txtPowerDistribution = self.column.empty()
+        # self.prgPowerDistributionProg = self.column.progress(self.i)
         
     def update(self):
         self.i += 1
         
-        # self.mode = self.column.markdown("#### Mode: Overdrive")
-        self.powerToday.markdown(f'#### Power : {currentData["heater_power"]} kw')
+        self.txtMode.metric(label="Mode",value=f'{currentData["heater_mode"]}')
+        self.txtCurrentPower.metric(label="Power",value=f'{currentData["heater_power"]} w')
         # self.column.markdown("#### Power distribution: 10%")
-        self.powerDistributionLabel.markdown(f"#### Power distribution: {self.i}%")
-        self.powerDistributionProg.progress(self.i % 100)
+        # self.txtPowerDistribution.markdown(f"#### Power distribution: {self.i}%")
+        # self.prgPowerDistributionProg.progress(self.i % 100)
         return super().update()
           
 class TeslaWallChargerWidget (UpdateingWidget):
@@ -93,11 +93,16 @@ class TeslaWallChargerWidget (UpdateingWidget):
         super().__init__(column,'Webserver/images/tesla_logo.png')
         
     def init(self):
-        self.mode = self.column.markdown("#### Mode: ECO")
-        self.charging = self.column.markdown("#### Chargin: Yes")
+        self.txtMode = self.column.empty()
+        self.txtCurrentPower = self.column.empty()
         
-        self.column.markdown("#### Power Today: 10%")
-        self.powerDistribution = self.column.progress(10)
+        # self.powerDistribution = self.column.progress(10)
+        
+    def update(self):
+        
+        self.txtMode.metric(label="Mode",value=f'{currentData["twc_mode"]}')
+        self.txtCurrentPower.metric(label="Power",value=f'{currentData["twc_power"]} w')
+        return super().update()
         
 def apiUpdate():
     res = requests.get('http://localhost:8080/house/power')
@@ -144,27 +149,35 @@ else:
 
 df['time'] = df['time'].apply(lambda x: datetime.fromisoformat(x))
 df.set_index('time', inplace=True)
+columns = df.columns
 
-sliced = df['2022-06-02 12:50':'2022-06-02 13:30']
-print(sliced)
 
+df["house_power"] = df["house_power"] - df["heater_power"] - df["twc_power"]
+df["twc_power"] = df["twc_power"]
+df["heater_power"] = df["heater_power"]
 df['import'] = df['grid_power'].apply(lambda x: abs(x) if x < 0 else 0)
 df['export'] = df['grid_power'].apply(lambda x: x if x > 0 else 0)
-df['selfused'] = df['solar_power'] - df['export']
 
 
-df = df.drop(df.columns.difference(['import','export','selfused']), axis=1)
+df = df.drop(df.columns.difference(['heater_power','twc_power',"house_power","export"]), axis=1).rename(columns={"heater_power":"2_Heater","twc_power":"1_Tesla","house_power":"3_House","export":"0_Export"})
+
+
+#          export,    heater,   house,   tesla
+colors = ['#00ff00','#20da3f','#e4852b','#0000ff']
 
 import altair as alt
 data = df.T.reset_index()
 data = pd.melt(data, id_vars=["index"]).rename(columns={"index": "type", "value": "power"})
+
+print(data[:10])
+
 chart = (
     alt.Chart(data)
     .mark_area(opacity=0.6)
     .encode(
         x="time:T",
         y=alt.Y("power:Q", stack=True),
-        color="type:N",
+        color=alt.Color("type:N", scale=alt.Scale(range=colors)),
         tooltip=['time',"power","type"]
     )
 )
@@ -173,5 +186,5 @@ st.altair_chart(chart, use_container_width=True)
 while True:
     currentData = apiUpdate()
     wc.update_all()
-    time.sleep(1)
+    time.sleep(5)
 

@@ -1,6 +1,9 @@
 import sys
+
+
 sys.path.append( '.' ) # Adds parent directory so we can import other modules
 import json
+from Tools.Shelly import heater_power, tesla_power
 from bottle import run, post, request, response,get
 from datetime import date,datetime
 import numpy as np
@@ -39,18 +42,23 @@ db = DatabaseModule('data/SolarDatabase.db')
 @get('/house/power')
 def power():
     d = datetime.now().replace(second=0, microsecond=0)
-    # solar_edge = CallModbus()
+    solar_edge = CallModbus()
+    tesla = tesla_power()
+    heater = heater_power()
     di = {
         'time':d.isoformat(),
-        # 'solar_power': solar_edge['solar'], 
-        # 'grid_power': solar_edge['grid'], 
-        # 'house_power': solar_edge['house'], 
-        'solar_power': get_rnd_value(), 
-        'grid_power': get_rnd_value(), 
-        'house_power': get_rnd_value(), 
-        'twc_power': get_rnd_value(), 
-        'heater_power': get_rnd_value(),
-        'heater_mode': 'Overdrive'
+        'solar_power': solar_edge['solar'], 
+        'grid_power': solar_edge['grid'], 
+        'house_power': solar_edge['house'], 
+        'twc_power': tesla, 
+        'heater_power': heater,
+        # 'solar_power': get_rnd_value(), 
+        # 'grid_power': get_rnd_value(), 
+        # 'house_power': get_rnd_value(), 
+        # 'twc_power': get_rnd_value(), 
+        # 'heater_power': get_rnd_value(),
+        'heater_mode': 'Overdrive',
+        'twc_mode': 'Eco'
         }
     return json.dumps({"status": "ok", "data": di}).encode('utf-8')
     

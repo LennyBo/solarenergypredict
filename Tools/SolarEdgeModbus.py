@@ -8,10 +8,15 @@ def CallModbus():
     inv = smdb.Inverter(host=solar_edge_ip,port=solar_edge_port)
 
     if(inv.connect()):
-        meter = inv.meters()["Meter1"]
-        
-        solarPower = inv.read("power_ac")["power_ac"]
-        gridPower = meter.read("power")["power"]
+        try:
+            meter = inv.meters()["Meter1"]
+            
+            solarPower = round(inv.read("power_ac")["power_ac"] * 10 ** inv.read("power_ac_scale")["power_ac_scale"])
+            gridPower = round(meter.read("power")["power"] * 10 ** meter.read("power_scale")["power_scale"])
+        except KeyError:
+            print("Error keyerror")
+            inv.disconnect()
+            return {'solar':0, 'grid':0, 'house':0}
         housePower = solarPower - gridPower
         
         inv.disconnect()
@@ -24,3 +29,8 @@ def CallModbus():
         print("Inverter unreachable")
         inv.disconnect()
         return {'solar':0, 'grid':0, 'house':0}
+    
+if __name__=="__main__":
+    inv = smdb.Inverter(host=solar_edge_ip,port=solar_edge_port)
+    
+    print(inv.registers["power_ac"])

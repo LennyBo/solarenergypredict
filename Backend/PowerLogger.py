@@ -1,5 +1,7 @@
 import sys
 from urllib import response
+
+from sklearn.metrics import r2_score
 sys.path.append( '.' ) # Adds parent directory so we can import other modules
 import time
 import schedule
@@ -40,22 +42,25 @@ def update():
     
     return schedule.CancelJob
 
-db = DatabaseModule('data/SolarDatabase.db',False)
+
 
 
 # nextJobTime = get_next_job_time(datetime.now(), every)
 # schedule.every((nextJobTime - datetime.now()).total_seconds()).seconds.do(test)
 
 # run(host='localhost', port=8080, debug=True)
+
+db = DatabaseModule('data/SolarDatabase.db',False)
 update()
-try:
-    while True:
-        schedule.run_pending()
-        time.sleep(1)
-finally:
-    # from Tools.Telegram import easyMessage
-    # easyMessage("Solar Energy Predict: exception encountered")
-    schedule.clear()
+while True:
+    schedule.run_pending()
+    time.sleep(1)
+
+print(e)
+from Tools.Telegram import easyMessage
+easyMessage(f"Solar Energy Predict: exception encountered\n{e}")
+# from Tools.Telegram import easyMessage
+# easyMessage("Solar Energy Predict: exception encountered")
+schedule.clear()
     
-    exit(0)
 # threading.Timer(5, update).start()

@@ -121,7 +121,6 @@ def local_css(file_name):
         st.markdown('<style>{}</style>'.format(f.read()), unsafe_allow_html=True)
 
 def get_daily_data(d):
-    print(d)
     res = requests.get('http://localhost:8080/solar/day?date=' + d.strftime('%Y-%m-%d'))
     if res.status_code == 200:
         data = res.json()
@@ -161,11 +160,24 @@ wc.add_widget(TeslaWallChargerWidget)
 
 
 date_ = get_date()
+
+dfDates = pd.DataFrame({'time':pd.date_range(start=date_, end=date_+timedelta(days=1),freq='min')})
+dfDates = dfDates.set_index('time')
+
+
+
 df = get_daily_data(date_)
+
+
 
 
 df['time'] = df['time'].apply(lambda x: datetime.fromisoformat(x))
 df.set_index('time', inplace=True)
+
+df = dfDates.join(df, how='left').fillna(0)
+
+print(len(df))
+
 columns = df.columns
 
 
@@ -186,7 +198,6 @@ import altair as alt
 data = df.T.reset_index()
 data = pd.melt(data, id_vars=["index"]).rename(columns={"index": "type", "value": "power"})
 
-print(data[:10])
 
 
 st.title(f"Power summary of the {date_.strftime('%d-%m-%Y')}")

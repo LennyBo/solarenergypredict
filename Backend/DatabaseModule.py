@@ -43,6 +43,7 @@ class DatabaseModule:
         db.execute('''CREATE TABLE IF NOT EXISTS DailyEnergy (
                 date DATE PRIMARY KEY DEFAULT CURRENT_DATE,
                 solar_energy INTERGER,
+                solar_predicted INTERGER,
                 grid_energy INTERGER,
                 twc_energy INTERGER,
                 twc_green_precentage FLOAT,
@@ -56,20 +57,46 @@ class DatabaseModule:
     
     def delete_table(self):
         db = sqlite3.connect(self.database_name)
-        db.execute('''DROP TABLE IF EXISTS HistoricPower''')
+        # db.execute('''DROP TABLE IF EXISTS HistoricPower''')
         db.execute('''DROP TABLE IF EXISTS DailyEnergy''')
         db.close()
         
     def insert_daily_energy(self,data,date=date.today()):
         db = sqlite3.connect(self.database_name)
-        db.execute(f'''REPLACE INTO DailyEnergy
-                   (date,solar_energy,grid_energy, twc_energy, twc_green_precentage, heater_energy, heater_green_precentage, house_energy,house_green_precentage)
-                   VALUES ("{date}",{data['solar_energy']}, {data['grid_energy']},
-                   {data['twc_energy']}, {data['twc_green_precentage']},
-                   {data['heater_energy']}, {data['heater_green_precentage']},
-                   {data['house_energy']}, {data['house_green_precentage']}
-                   )'''
-                )
+        if 'solar_predicted' in data:
+            db.execute(f'''REPLACE INTO DailyEnergy
+                    (date,solar_energy,solar_predicted,grid_energy, twc_energy, twc_green_precentage, heater_energy, heater_green_precentage, house_energy,house_green_precentage)
+                    VALUES ("{date}",{data['solar_energy']},{data['solar_predicted']}, {data['grid_energy']},
+                    {data['twc_energy']}, {data['twc_green_precentage']},
+                    {data['heater_energy']}, {data['heater_green_precentage']},
+                    {data['house_energy']}, {data['house_green_precentage']}
+                    )'''
+                    )
+        else:
+            db.execute(f'''REPLACE INTO DailyEnergy
+                    (date,solar_energy,grid_energy, twc_energy, twc_green_precentage, heater_energy, heater_green_precentage, house_energy,house_green_precentage)
+                    VALUES ("{date}",{data['solar_energy']}, {data['grid_energy']},
+                    {data['twc_energy']}, {data['twc_green_precentage']},
+                    {data['heater_energy']}, {data['heater_green_precentage']},
+                    {data['house_energy']}, {data['house_green_precentage']}
+                    )'''
+                    )
+        db.commit()
+        db.close()
+    
+    def get_sum(self,date=date.today()):
+        db = sqlite3.connect(self.database_name)
+        db.execute(f'''REPLACE INTO DailyEnergy(date,solar_energy,grid_energy,twc_energy,heater_energy,house_energy)
+                   SELECT
+                   DATE(time) AS date,
+                   SUM(solar_power) as solar_energy,
+                   SUM(grid_power) as grid_energy,
+                   SUM(twc_power) as twc_energy,
+                   SUM(heater_power) as heater_energy,
+                   SUM(house_power) as house_energy
+                   FROM HistoricPower
+                   WHERE DATE(time)='{date}'
+                   ''')
         db.commit()
         db.close()
     
@@ -80,14 +107,11 @@ class DatabaseModule:
         return df
 
 if __name__ == '__main__':
-    db = DatabaseModule('data/SolarDatabase.db',True)
+    db = DatabaseModule('data/SolarDatabase.db',False)
     
-    db.insert_daily_energy({'solar_energy':100,'grid_energy':200,'twc_energy':300,'twc_green_precentage':0.5,'heater_energy':400,'heater_green_precentage':0.6,'house_energy':500,'house_green_precentage':0.7})
-    db.insert_daily_energy({'solar_energy':50,'grid_energy':200,'twc_energy':300,'twc_green_precentage':0.5,'heater_energy':400,'heater_green_precentage':0.6,'house_energy':500,'house_green_precentage':0.7})
-    db.insert_daily_energy({'solar_energy':50,'grid_energy':33,'twc_energy':300,'twc_green_precentage':0.5,'heater_energy':400,'heater_green_precentage':0.6,'house_energy':500,'house_green_precentage':0.7})
-    db.insert_daily_energy({'solar_energy':50,'grid_energy':200,'twc_energy':100,'twc_green_precentage':0.5,'heater_energy':400,'heater_green_precentage':0.6,'house_energy':500,'house_green_precentage':0.7})
-    
-    df = db.select_daily_energy()
+    df = db.get_sum()
+    print(db.select_daily_energy())
+
     print(df)
     
     

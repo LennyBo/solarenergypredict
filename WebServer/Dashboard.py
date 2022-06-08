@@ -130,6 +130,17 @@ def get_daily_data(d):
             print(f'{datetime.now()} error: {data["status"]}')
     else:
         print("Error: " + str(res.status_code))
+        
+def get_day_summary(d):
+    res = requests.get('http://localhost:8080/house/energy?date=' + d.strftime('%Y-%m-%d'))
+    if res.status_code == 200:
+        data = res.json()
+        if data['status'] == 'ok':
+            return data['data']
+        else:
+            print(f'{datetime.now()} error: {data["status"]}')
+    else:
+        print("Error: " + str(res.status_code))
 
 def get_date():
     getQ = st.experimental_get_query_params()
@@ -167,16 +178,13 @@ dfDates = dfDates.set_index('time')
 
 
 df = get_daily_data(date_)
-
-
-
+daySummary = get_day_summary(date_)
 
 df['time'] = df['time'].apply(lambda x: datetime.fromisoformat(x))
 df.set_index('time', inplace=True)
 
 df = dfDates.join(df, how='left').fillna(0)
 
-print(len(df))
 
 columns = df.columns
 
@@ -201,6 +209,15 @@ data = pd.melt(data, id_vars=["index"]).rename(columns={"index": "type", "value"
 
 
 st.title(f"Power summary of the {date_.strftime('%d-%m-%Y')}")
+st.write(daySummary)
+cols = st.columns(6)
+
+cols[0].metric(label="Solar",value=f'{round(daySummary["solar_energy"] / 1000)} kwh')
+cols[0].metric(label="Predicted",value=f'{round(daySummary["solar_predicted"] / 1000)} kwh')
+cols[1].metric(label="Grid",value=f'{round(daySummary["solar_energy"] / 1000)} kwh')
+cols[2].metric(label="Heater",value=f'{round(daySummary["solar_energy"] / 1000)} kwh') 
+cols[3].metric(label="Tesla",value=f'{round(daySummary["solar_energy"] / 1000)} kwh') 
+cols[4].metric(label="House",value=f'{round(daySummary["solar_energy"] / 1000)} kwh') 
 
 colPrev,_,colNext = st.columns(3)
 

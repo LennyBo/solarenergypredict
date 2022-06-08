@@ -37,4 +37,4 @@ solarNorth = SolarPanels(surface=surfaceNorth, tilt=-21)
 if __name__ == "__main__":
     from matplotlib import pyplot as plt
 
-    print(ghiToPower(2000))
+    print(ghiToPower(6300))

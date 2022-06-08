@@ -1,7 +1,5 @@
 import sys
 from urllib import response
-
-from sklearn.metrics import r2_score
 sys.path.append( '.' ) # Adds parent directory so we can import other modules
 import time
 import schedule
@@ -28,16 +26,17 @@ def update():
         data = res.json()
         if data['status'] == 'ok':
             db.insert_data(data['data'])
-            db.get_sum()
         else:
             print(f'{datetime.now()} error: {data["status"]}')
     else:
         print("Error: " + str(res.status_code))
 
-    df = db.select_data_day(datetime.now().date())
-
+    df = db.select_data_day(date.today())
     print(df)
-    print(db.select_daily_energy(datetime.now().date() + timedelta(days=1)))
+    
+    print(db.select_daily_energy())
+    print(db.select_daily_energy(date.today() + timedelta(days=1)))
+    
     nextJobTime = get_next_job_time(datetime.now(), every)
     schedule.every((nextJobTime - datetime.now()).total_seconds()).seconds.do(update)
     
@@ -53,6 +52,7 @@ def predict():
                             'heater_green_precentage':0,'house_energy':0,
                             'house_green_precentage':0},
                            date.today() + timedelta(days=1))
+    
     
 
 
@@ -70,9 +70,6 @@ update()
 schedule.every().day.at("20:00").do(update)
 while True:
     schedule.run_pending()
-    
-    
-
     time.sleep(1)
 
 print(e)

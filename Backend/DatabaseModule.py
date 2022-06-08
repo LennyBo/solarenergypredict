@@ -14,12 +14,13 @@ class DatabaseModule:
         
     def insert_data(self,data):
         db = sqlite3.connect(self.database_name)
-        db.execute(f'''INSERT INTO HistoricPower 
+        db.execute(f'''REPLACE INTO HistoricPower 
                    (time,solar_power, grid_power, house_power, twc_power, heater_power, heater_mode) 
                    VALUES ("{data['time']}",{data['solar_power']}, {data['grid_power']}, {data['house_power']}, {data['twc_power']}, {data['heater_power']}, "{data['heater_mode']}")'''
                    )
         db.commit()
         db.close()
+        self.get_sum()
         
     def select_data_day(self,date):
         db = sqlite3.connect(self.database_name)
@@ -85,15 +86,17 @@ class DatabaseModule:
         db.close()
     
     def get_sum(self,date=date.today()):
+        # TODO Sum * minute
         db = sqlite3.connect(self.database_name)
-        db.execute(f'''REPLACE INTO DailyEnergy(date,solar_energy,grid_energy,twc_energy,heater_energy,house_energy)
+        db.execute(f'''REPLACE INTO DailyEnergy(date,solar_energy,solar_predicted,grid_energy,twc_energy,heater_energy,house_energy)
                    SELECT
                    DATE(time) AS date,
-                   SUM(solar_power) as solar_energy,
-                   SUM(grid_power) as grid_energy,
-                   SUM(twc_power) as twc_energy,
-                   SUM(heater_power) as heater_energy,
-                   SUM(house_power) as house_energy
+                   (SUM(solar_power) * 1/60) as solar_energy,
+                   (SELECT solar_predicted FROM DailyEnergy WHERE date=DATE(time)) as solar_predicted,
+                   (SUM(grid_power) * 1/60) as grid_energy,
+                   (SUM(twc_power) * 1 /60) as twc_energy,
+                   (SUM(heater_power) * 1/60) as heater_energy,
+                   (SUM(house_power) * 1/60) as house_energy
                    FROM HistoricPower
                    WHERE DATE(time)='{date}'
                    ''')
@@ -102,7 +105,7 @@ class DatabaseModule:
     
     def select_daily_energy(self,date=date.today()):
         db = sqlite3.connect(self.database_name)
-        df = pd.read_sql(f'''SELECT * FROM DailyEnergy''', db)
+        df = pd.read_sql(f'''SELECT * FROM DailyEnergy WHERE date='{date}' ''', db)#WHERE date='{date}'
         db.close()
         return df
 
@@ -112,6 +115,4 @@ if __name__ == '__main__':
     df = db.get_sum()
     print(db.select_daily_energy())
 
-    print(df)
-    
     

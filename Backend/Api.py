@@ -28,7 +28,7 @@ def daily():
         # d = date.fromisoformat(data['date'])
         
         df = db.select_data_day(d)
-        return json.dumps({"status": "ok", "data": df.to_dict()}).encode('utf-8')
+        return json.dumps({"status": "ok", "data": df.to_dict()})
     except KeyError:
         return json.dumps({"status": "error expected key: date"})
     except ValueError:
@@ -37,10 +37,41 @@ def daily():
         print(e)
         return json.dumps({"status": "unknown error"})
 
-db = DatabaseModule('data/SolarDatabase.db')
+
+
+@get('/house/energy')
+def house_energy():
+    try:
+        d = request.query.date
+        if d == '':
+            d = date.today()
+        else:
+            d = date.fromisoformat(d)
+        
+        energy = db.select_daily_energy(d).to_dict()
+        if len(energy['date']) == 0: # Means it is in the future
+            return json.dumps({"status": "error: No data for that day"})
+        
+        dict_ = {
+            'solar_predicted': energy['solar_predicted'][0],
+            'solar_energy': energy['solar_energy'][0],
+            'grid_energy': energy['grid_energy'][0],
+            'twc_energy': energy['twc_energy'][0],
+            'heater_energy': energy['heater_energy'][0],
+            'house_energy': energy['house_energy'][0],
+        }
+        
+        return json.dumps({"status": "ok", "data": dict_})
+    except KeyError:
+        return json.dumps({"status": "error expected key: date"})
+    except ValueError:
+        return json.dumps({"status": "error date format"})
+    # except Exception as e:
+    #     print(e)
+    #     return json.dumps({"status": "unknown error"})
 
 @get('/house/power')
-def power():
+def house_power():
     d = datetime.now().replace(second=0, microsecond=0)
     # solar_edge = CallModbus()
     # tesla = tesla_power()
@@ -66,4 +97,6 @@ def power():
 def power():
     return ["pong"]
 
+
+db = DatabaseModule('data/SolarDatabase.db')
 run(host='localhost', port=8080, debug=False,server='cheroot')

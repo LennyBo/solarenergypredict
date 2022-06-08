@@ -23,7 +23,7 @@ def forecast(df):
 
     res = model.predict(x)
 
-    return [int(x[0]) for x in res]
+    return [int(ghiToPower(x[0])) for x in res]
     
 
 if __name__ == "__main__":

@@ -152,6 +152,10 @@ def get_date():
             st.error(f'Invalid date format: {dStr}')
     return date.today()
     
+def to_kilo(v):
+    if v is None:
+        return v
+    return round(v / 1000,1)
 
 currentData = apiUpdate()
 
@@ -215,6 +219,8 @@ data = pd.melt(data, id_vars=["index"]).rename(columns={"index": "type", "value"
 st.title(f"Power summary of the {date_.strftime('%d-%m-%Y')}")
 if daySummary is not None:
     cols = st.columns(5)
+    
+    daySummary = {k:to_kilo(v) for k,v in daySummary.items()}
 
     cols[0].metric(label="Solar",value=f'{daySummary["solar_energy"]} kwh')
     cols[0].metric(label="Predicted",value=f'{daySummary["solar_predicted"] } kwh')

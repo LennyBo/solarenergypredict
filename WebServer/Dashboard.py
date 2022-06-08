@@ -181,9 +181,13 @@ df = get_daily_data(date_)
 daySummary = get_day_summary(date_)
 
 df['time'] = df['time'].apply(lambda x: datetime.fromisoformat(x))
+# df['time'] = df['time'].dt.tz_localize('Europe/Berlin')
+
 df.set_index('time', inplace=True)
 
 df = dfDates.join(df, how='left').fillna(0)
+
+df.index = df.index.tz_localize('Europe/Berlin') # Otherwise altair fucks it up for no reason
 
 
 columns = df.columns
@@ -209,15 +213,15 @@ data = pd.melt(data, id_vars=["index"]).rename(columns={"index": "type", "value"
 
 
 st.title(f"Power summary of the {date_.strftime('%d-%m-%Y')}")
-st.write(daySummary)
-cols = st.columns(6)
+if daySummary is not None:
+    cols = st.columns(5)
 
-cols[0].metric(label="Solar",value=f'{round(daySummary["solar_energy"] / 1000)} kwh')
-cols[0].metric(label="Predicted",value=f'{round(daySummary["solar_predicted"] / 1000)} kwh')
-cols[1].metric(label="Grid",value=f'{round(daySummary["solar_energy"] / 1000)} kwh')
-cols[2].metric(label="Heater",value=f'{round(daySummary["solar_energy"] / 1000)} kwh') 
-cols[3].metric(label="Tesla",value=f'{round(daySummary["solar_energy"] / 1000)} kwh') 
-cols[4].metric(label="House",value=f'{round(daySummary["solar_energy"] / 1000)} kwh') 
+    cols[0].metric(label="Solar",value=f'{daySummary["solar_energy"]} kwh')
+    cols[0].metric(label="Predicted",value=f'{daySummary["solar_predicted"] } kwh')
+    cols[1].metric(label="Grid",value=f'{daySummary["grid_energy"]} kwh')
+    cols[2].metric(label="Heater",value=f'{daySummary["heater_energy"]} kwh') 
+    cols[3].metric(label="Tesla",value=f'{daySummary["twc_energy"]} kwh') 
+    cols[4].metric(label="House",value=f'{daySummary["house_energy"]} kwh') 
 
 colPrev,_,colNext = st.columns(3)
 

@@ -110,9 +110,11 @@ class DatabaseModule:
         return df
 
 if __name__ == '__main__':
+    import requests
+    from datetime import datetime
     db = DatabaseModule('data/SolarDatabase.db',False)
     
-    df = db.get_sum()
-    print(db.select_daily_energy())
+    df = db.select_data_day(date.today())
+    print(df)
 
     

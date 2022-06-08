@@ -13,6 +13,7 @@ from Tools.SolarEdgeModbus import CallModbus
 def get_rnd_value():
     return np.random.randint(0, 100)
 
+#TODO change to /house/power
 @get('/solar/day')
 def daily():
     
@@ -36,7 +37,6 @@ def daily():
     except Exception as e:
         print(e)
         return json.dumps({"status": "unknown error"})
-
 
 
 @get('/house/energy')

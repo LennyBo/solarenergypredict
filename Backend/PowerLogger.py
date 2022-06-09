@@ -23,11 +23,12 @@ def update():
     print(f'{datetime.now()} job')
     res = requests.get('http://localhost:8080/house/power')
     if res.status_code == 200:
-        data = res.json()
-        if data['status'] == 'ok':
-            db.insert_data(data['data'])
+        response = res.json()
+        response['data']["twc_power"] = None # TODO
+        if response['status'] == 'ok':
+            db.insert_data(response['data'])
         else:
-            print(f'{datetime.now()} error: {data["status"]}')
+            print(f'{datetime.now()} error: {response["status"]}')
     else:
         print("Error: " + str(res.status_code))
 

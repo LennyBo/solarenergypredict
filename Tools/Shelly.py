@@ -10,13 +10,13 @@ def shelly_total_power(ip):
             data = res.json()
             return int(data['total_power'])
         else:
-            return None
+            return 0
     except requests.exceptions.ConnectionError:
-        return None
+        return 0
     except requests.exceptions.JSONDecodeError:
-        return None
+        return 0
     except KeyError:
-        return None
+        return 0 # We could return None for these but that will generate errors down the line
 
 
 def heater_power():

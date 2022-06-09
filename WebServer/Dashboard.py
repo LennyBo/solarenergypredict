@@ -157,56 +157,59 @@ def to_kilo(v):
         return v
     return round(v / 1000,1)
 
-currentData = apiUpdate()
+
+date_ = get_date() # Get the date to fetch data for
+currentData = apiUpdate() # Initialize with the current values
 
 local_css("WebServer/style.css")
 
-# st.sidebar.header("Tesla Wall Charger")
 
+# Is for the widget grid
 colsPerRow = 3
 widgetCount = 3
 grid = []
 
-wc = WidgetController(colsPerRow,widgetCount)
+wc = WidgetController(colsPerRow,widgetCount) # Creates columns for the grid
 
+# Adding widgets into the columns
 wc.add_widget(SolarWidget)
 wc.add_widget(HeaterWidget)
 wc.add_widget(TeslaWallChargerWidget)
 
 
-date_ = get_date()
 
+
+
+# Get minutetly data for the selected date
+df = get_daily_data(date_)
+daySummary = get_day_summary(date_)
+# Creates a index for each minute so if there is missing data it will still show 24 hours
 dfDates = pd.DataFrame({'time':pd.date_range(start=date_, end=date_+timedelta(days=1),freq='min')})
 dfDates = dfDates.set_index('time')
 
-
-
-df = get_daily_data(date_)
-daySummary = get_day_summary(date_)
-
 df['time'] = df['time'].apply(lambda x: datetime.fromisoformat(x))
-# df['time'] = df['time'].dt.tz_localize('Europe/Berlin')
-
 df.set_index('time', inplace=True)
 
+# Will merge the data with the index for 24 hours
 df = dfDates.join(df, how='left').fillna(0)
 
 df.index = df.index.tz_localize('Europe/Berlin') # Otherwise altair fucks it up for no reason
 
-
-columns = df.columns
-
-
+# Do some processing for the graph
 df["house_power"] = df["house_power"] - df["heater_power"] - df["twc_power"]
 df["twc_power"] = df["twc_power"]
 df["heater_power"] = df["heater_power"]
 df['import'] = df['grid_power'].apply(lambda x: abs(x) if x < 0 else 0)
 df['export'] = df['grid_power'].apply(lambda x: x if x > 0 else 0)
 
+# Only keep to info we want to show
+# TODO: Make this configurable
+# TODO: Add diffrent columns for solar vs grid power for heater, twc and house
+df = df.drop(df.columns.difference(['heater_power','twc_power',"house_power","export"]), axis=1)
 
-df = df.drop(df.columns.difference(['heater_power','twc_power',"house_power","export"]), axis=1).rename(columns={"heater_power":"2_Heater","twc_power":"1_Tesla","house_power":"3_House","export":"0_Export"})
-
-
+# Altair sorts the columns alphabetically, and there seems to be no way to hard code which color goes for what
+# so we need to sort them manually
+df = df.rename(columns={"heater_power":"2_Heater","twc_power":"1_Tesla","house_power":"3_House","export":"0_Export"})
 
 colors = ['#00ff00','#ff1803','#e4852b','#0000ff']
 

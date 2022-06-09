@@ -62,7 +62,7 @@ def predict():
 
 # run(host='localhost', port=8080, debug=True)
 
-db = DatabaseModule('data/SolarDatabase.db',False)
+db = DatabaseModule('data/SolarDatabase.db',True)
 
 # predict()
 

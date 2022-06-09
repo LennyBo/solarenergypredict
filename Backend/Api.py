@@ -14,7 +14,7 @@ def get_rnd_value():
     return np.random.randint(500, 3000)
 
 #TODO change to /house/power
-@get('/solar/day')
+@get('/house/power/day')
 def daily():
     
     try:

@@ -125,7 +125,7 @@ def local_css(file_name):
         st.markdown('<style>{}</style>'.format(f.read()), unsafe_allow_html=True)
 
 def get_daily_data(d):
-    res = requests.get('http://localhost:8080/solar/day?date=' + d.strftime('%Y-%m-%d'))
+    res = requests.get('http://localhost:8080/house/power/day?date=' + d.strftime('%Y-%m-%d'))
     if res.status_code == 200:
         data = res.json()
         if data['status'] == 'ok':

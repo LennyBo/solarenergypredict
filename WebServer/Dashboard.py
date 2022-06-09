@@ -62,8 +62,8 @@ class SolarWidget (UpdateingWidget):
         self.txtGrid = self.column.empty()
     
     def update(self):
-        self.txtSolar.metric(label='Solar: ',value=f'{currentData["solar_power"]} w')# ,delta=-1.2)
-        self.txtGrid.metric(label='Grid: ',value=f'{currentData["grid_power"]} w')
+        self.txtSolar.metric(label='Solar: ',value=f'{currentData["solar_power"]} w',delta=currentData["solar_power"] - pastData["solar_power"])
+        self.txtGrid.metric(label='Grid: ',value=f'{currentData["grid_power"]} w',delta=currentData["grid_power"] - pastData["grid_power"])
         
 class HeaterWidget (UpdateingWidget):
     
@@ -82,7 +82,7 @@ class HeaterWidget (UpdateingWidget):
         self.i += 1
         
         self.txtMode.metric(label="Mode",value=f'{currentData["heater_mode"]}')
-        self.txtCurrentPower.metric(label="Power",value=f'{currentData["heater_power"]} w')
+        self.txtCurrentPower.metric(label="Power",value=f'{currentData["heater_power"]} w',delta=currentData["heater_power"] - pastData["heater_power"])
         # self.column.markdown("#### Power distribution: 10%")
         # self.txtPowerDistribution.markdown(f"#### Power distribution: {self.i}%")
         # self.prgPowerDistributionProg.progress(self.i % 100)
@@ -102,7 +102,7 @@ class TeslaWallChargerWidget (UpdateingWidget):
     def update(self):
         
         self.txtMode.metric(label="Mode",value=f'{currentData["twc_mode"]}')
-        self.txtCurrentPower.metric(label="Power",value=f'{currentData["twc_power"]} w')
+        self.txtCurrentPower.metric(label="Power",value=f'{currentData["twc_power"]} w',delta=currentData["twc_power"] - pastData["twc_power"])
         return super().update()
         
 def apiUpdate():
@@ -160,6 +160,7 @@ def to_kilo(v):
 
 date_ = get_date() # Get the date to fetch data for
 currentData = apiUpdate() # Initialize with the current values
+pastData = currentData
 
 local_css("WebServer/style.css")
 
@@ -251,6 +252,7 @@ chart = (
 st.altair_chart(chart, use_container_width=True)
 
 while True:
+    pastData = currentData
     currentData = apiUpdate()
     wc.update_all()
     time.sleep(5)

@@ -58,7 +58,7 @@ class DatabaseModule:
     
     def delete_table(self):
         db = sqlite3.connect(self.database_name)
-        # db.execute('''DROP TABLE IF EXISTS HistoricPower''')
+        db.execute('''DROP TABLE IF EXISTS HistoricPower''')
         db.execute('''DROP TABLE IF EXISTS DailyEnergy''')
         db.close()
         

@@ -5,7 +5,7 @@ import json
 from datetime import datetime
 
 
-def getWeatherNextDay():
+def get_weather_next_day():
     r = get(
         f"https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/gampelen/tomorrow?include=fcst%2Cobs%2Chistfcst%2Cstats%2Chours&key={API_KEY_VC}&contentType=json"
     )
@@ -54,6 +54,6 @@ if __name__ == "__main__":
     with open(fileName) as f:
         data.append(json.load(f))
 
-    df = getWeatherNextDay()
+    df = get_weather_next_day()
     print(df)
     # print(data)

@@ -6,8 +6,8 @@ import schedule
 import numpy as np
 from datetime import datetime,timedelta
 from DatabaseModule import DatabaseModule
-from Tools.VisualCrossingApi import getWeatherNextDay
-from Testing.ApiForecast import forecast
+from Tools.VisualCrossingApi import get_weather_next_day
+from Testing.ApiForecast import forecaset_power_output
 import requests
 from datetime import date
 
@@ -24,7 +24,6 @@ def update():
     res = requests.get('http://localhost:8080/house/power')
     if res.status_code == 200:
         response = res.json()
-        response['data']["twc_power"] = None # TODO
         if response['status'] == 'ok':
             db.insert_data(response['data'])
         else:
@@ -46,7 +45,7 @@ def update():
 def predict():
     # TODO Handle exceptions
     #Insert prediction for tomorrow
-    prediction = forecast(getWeatherNextDay())[0]
+    prediction = forecaset_power_output(get_weather_next_day())[0]
     db.insert_daily_energy(
                            {'solar_energy':0,'solar_predicted':prediction,'grid_energy':0,'twc_energy':0,
                             'twc_green_precentage':0,'heater_energy':0,
@@ -63,12 +62,12 @@ def predict():
 
 # run(host='localhost', port=8080, debug=True)
 
-db = DatabaseModule('data/SolarDatabase.db',True)
+db = DatabaseModule('data/SolarDatabase.db',False)
 
-predict()
+# predict()
 
 update()
-schedule.every().day.at("20:00").do(update)
+schedule.every().day.at("20:00").do(predict)
 while True:
     schedule.run_pending()
     time.sleep(1)

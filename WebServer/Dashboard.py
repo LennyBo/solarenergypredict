@@ -62,8 +62,10 @@ class SolarWidget (UpdateingWidget):
         self.txtGrid = self.column.empty()
     
     def update(self):
-        self.txtSolar.metric(label='Solar: ',value=f'{currentData["solar_power"]} w',delta=currentData["solar_power"] - pastData["solar_power"])
-        self.txtGrid.metric(label='Grid: ',value=f'{currentData["grid_power"]} w',delta=currentData["grid_power"] - pastData["grid_power"])
+        self.txtSolar.metric(label='Solar: ',value=f'{currentData["solar_power"]} kw',
+                             delta=round(currentData["solar_power"] - pastData["solar_power"],1))
+        self.txtGrid.metric(label='Grid: ',value=f'{currentData["grid_power"]} kw',
+                            delta=round(currentData["grid_power"] - pastData["grid_power"],1))
         
 class HeaterWidget (UpdateingWidget):
     
@@ -82,7 +84,8 @@ class HeaterWidget (UpdateingWidget):
         self.i += 1
         
         self.txtMode.metric(label="Mode",value=f'{currentData["heater_mode"]}')
-        self.txtCurrentPower.metric(label="Power",value=f'{currentData["heater_power"]} w',delta=currentData["heater_power"] - pastData["heater_power"])
+        self.txtCurrentPower.metric(label="Power",value=f'{currentData["heater_power"]} kw',
+                                    delta=round(currentData["heater_power"] - pastData["heater_power"],1))
         # self.column.markdown("#### Power distribution: 10%")
         # self.txtPowerDistribution.markdown(f"#### Power distribution: {self.i}%")
         # self.prgPowerDistributionProg.progress(self.i % 100)
@@ -97,12 +100,11 @@ class TeslaWallChargerWidget (UpdateingWidget):
         self.txtMode = self.column.empty()
         self.txtCurrentPower = self.column.empty()
         
-        # self.powerDistribution = self.column.progress(10)
-        
     def update(self):
         
         self.txtMode.metric(label="Mode",value=f'{currentData["twc_mode"]}')
-        self.txtCurrentPower.metric(label="Power",value=f'{currentData["twc_power"]} w',delta=currentData["twc_power"] - pastData["twc_power"])
+        self.txtCurrentPower.metric(label="Power",value=f'{currentData["twc_power"]} kw',
+                                    delta=round(currentData["twc_power"] - pastData["twc_power"],1))
         return super().update()
         
 def apiUpdate():
@@ -110,7 +112,9 @@ def apiUpdate():
     if res.status_code == 200:
         jsonRes = res.json()
         if jsonRes['status'] == 'ok':
-            return jsonRes['data']
+            d = jsonRes['data']
+            d = {k:to_kilo(v) for k,v in d.items()}
+            return d
         else:
             print(f'{datetime.now()} error: {jsonRes["status"]}')
     else:
@@ -153,7 +157,7 @@ def get_date():
     return date.today()
     
 def to_kilo(v):
-    if v is None:
+    if type(v) != int and type(v) != float:
         return v
     return round(v / 1000,1)
 
@@ -255,5 +259,5 @@ while True:
     pastData = currentData
     currentData = apiUpdate()
     wc.update_all()
-    time.sleep(5)
+    time.sleep(1)
 

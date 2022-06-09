@@ -11,7 +11,7 @@ from Backend.DatabaseModule import DatabaseModule
 from Tools.SolarEdgeModbus import CallModbus
 
 def get_rnd_value():
-    return np.random.randint(0, 100)
+    return np.random.randint(500, 3000)
 
 #TODO change to /house/power
 @get('/solar/day')

@@ -64,7 +64,7 @@ def Preprocessing(df):
         dayOfTheYear = df["datetime"][i].timetuple().tm_yday
         xTemp["dayOfTheYear"] = [dayOfTheYear] * len(xTemp)
 
-        xTemp = np.asarray(xTemp)
+        xTemp = np.asarray(xTemp).reshape(len(xTemp), len(xTemp.columns),1)
         x.append(xTemp)
         y.append([sum(np.array(df["Ghi_NextDay"][i:i+forecastLength]))]) # Add the sum ghi of the next day to y
 

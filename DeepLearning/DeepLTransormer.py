@@ -76,7 +76,7 @@ def create_vit_classifier():
     representation = layers.Flatten()(representation)
     representation = layers.Dropout(0.5)(representation)
     # Add MLP.
-    features = mlp(representation, hidden_units=mlp_head_units, dropout_rate=0.5)
+    features = mlp(representation, hidden_units=mlp_head_units, dropout_rate=0.1)
     # Classify outputs.
     logits = layers.Dense(1)(features)
     # Create the Keras model.
@@ -95,25 +95,18 @@ def run_experiment(model):
             "mae",
         ],
     )
-
-    checkpoint_filepath = "/tmp/checkpoint"
-    checkpoint_callback = keras.callbacks.ModelCheckpoint(
-        checkpoint_filepath,
-        monitor="val_accuracy",
-        save_best_only=True,
-        save_weights_only=True,
-    )
-
+    
+    callbacks = [keras.callbacks.EarlyStopping(patience=50, restore_best_weights=True)]
+    
     history = model.fit(
         x=X_train,
         y=y_train,
         batch_size=batch_size,
         epochs=num_epochs,
         validation_split=0.1,
-        callbacks=[checkpoint_callback],
+        callbacks=callbacks,
     )
 
-    model.load_weights(checkpoint_filepath)
     score = model.evaluate(X_test, y_test, verbose=0)
 
     roundDecimal = 2
@@ -129,8 +122,8 @@ VAL_SIZE = 360 # Days
 
 learning_rate = 0.001
 weight_decay = 0.0001
-batch_size = 256
-num_epochs = 100
+batch_size = 64
+num_epochs = 200
 image_size = 72  # We'll resize input images to this size
 patch_size = 6  # Size of the patches to be extract from the input images
 num_patches = (image_size // patch_size) ** 2
@@ -140,8 +133,8 @@ transformer_units = [
     projection_dim * 2,
     projection_dim,
 ]  # Size of the transformer layers
-transformer_layers = 8
-mlp_head_units = [2048, 1024]  # Size of the dense layers of the final classifier
+transformer_layers = 10
+mlp_head_units = [200, 100,50,10]  # Size of the dense layers of the final classifier
 
 
 print("Loading dataset...")
@@ -178,11 +171,6 @@ data_augmentation = keras.Sequential(
 [
     layers.Normalization(),
     layers.Resizing(image_size, image_size),
-    layers.RandomFlip("horizontal"),
-    layers.RandomRotation(factor=0.02),
-    layers.RandomZoom(
-        height_factor=0.2, width_factor=0.2
-    ),
 ],
 name="data_augmentation",
 )

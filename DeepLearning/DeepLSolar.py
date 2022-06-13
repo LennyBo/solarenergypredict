@@ -99,19 +99,19 @@ if __name__ == "__main__":
     
     print("Compiling model...\n")
     
-    # model = Sequential()
-    # model.add(layers.BatchNormalization(input_shape=(x[0].shape)))
+    model = Sequential()
+    model.add(layers.BatchNormalization(input_shape=(x[0].shape)))
+    model.add(layers.Conv1D(filters=64, kernel_size=3, activation='relu'))
+    model.add(layers.MaxPooling1D(pool_size=2))
     # model.add(layers.Conv1D(filters=64, kernel_size=3, activation='relu'))
-    # model.add(layers.MaxPooling1D(pool_size=2))
-    # # model.add(layers.Conv1D(filters=64, kernel_size=3, activation='relu'))
-    # model.add(layers.LSTM(units=64, return_sequences=True))
-    # # model.add(layers.BatchNormalization())
-    # model.add(layers.Flatten())
-    # model.add(Dense(200, activation="relu"))
-    # model.add(Dense(100, activation="relu"))
-    # model.add(Dense(50, activation="relu"))
-    # model.add(layers.Dropout(0.2))
-    # model.add(Dense(1))
+    model.add(layers.LSTM(units=64, return_sequences=True))
+    # model.add(layers.BatchNormalization())
+    model.add(layers.Flatten())
+    model.add(Dense(200, activation="relu"))
+    model.add(Dense(100, activation="relu"))
+    model.add(Dense(50, activation="relu"))
+    model.add(layers.Dropout(0.2))
+    model.add(Dense(1))
 
    
     input_shape = X_train.shape[1:]

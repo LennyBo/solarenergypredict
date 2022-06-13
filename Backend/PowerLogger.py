@@ -10,6 +10,7 @@ from Tools.VisualCrossingApi import get_weather_next_day
 from Testing.ApiForecast import forecaset_power_output
 import requests
 from datetime import date
+from Tools.Telegram import easy_message
 
 every = 1 # minutes
 
@@ -19,7 +20,7 @@ def get_next_job_time(time, interval):
     
     return next_job_time
 
-def update():
+def log_power():
     print(f'{datetime.now()} job')
     res = requests.get('http://localhost:8080/house/power')
     if res.status_code == 200:
@@ -38,11 +39,11 @@ def update():
     print(db.select_daily_energy(date.today() + timedelta(days=1)))
     
     nextJobTime = get_next_job_time(datetime.now(), every)
-    schedule.every((nextJobTime - datetime.now()).total_seconds()).seconds.do(update)
+    schedule.every((nextJobTime - datetime.now()).total_seconds()).seconds.do(log_power)
     
     return schedule.CancelJob
 
-def predict():
+def predict_next_day():
     # TODO Handle exceptions
     #Insert prediction for tomorrow
     prediction = forecaset_power_output(get_weather_next_day())[0]
@@ -52,31 +53,16 @@ def predict():
                             'heater_green_precentage':0,'house_energy':0,
                             'house_green_precentage':0},
                            date.today() + timedelta(days=1))
-    
-    
 
-
-
-# nextJobTime = get_next_job_time(datetime.now(), every)
-# schedule.every((nextJobTime - datetime.now()).total_seconds()).seconds.do(test)
-
-# run(host='localhost', port=8080, debug=True)
 
 db = DatabaseModule('data/SolarDatabase.db',False)
+log_power()
+schedule.every().day.at("20:00").do(predict_next_day)
 
-# predict()
-
-update()
-schedule.every().day.at("20:00").do(predict)
 while True:
-    schedule.run_pending()
-    time.sleep(1)
-
-print(e)
-from Tools.Telegram import easyMessage
-easyMessage(f"Solar Energy Predict: exception encountered\n{e}")
-# from Tools.Telegram import easyMessage
-# easyMessage("Solar Energy Predict: exception encountered")
-schedule.clear()
-    
-# threading.Timer(5, update).start()
+    try:
+        schedule.run_pending()
+    except Exception as e:
+        easy_message(f'Script encoutered an error\n{e}')
+    finally:
+        time.sleep(1) # Every second, see if there is a job to run

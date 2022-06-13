@@ -7,9 +7,9 @@ def send_message(text,token, chat_id):
     r = requests.get(url + "/sendMessage", params=params)
     return r
 
-def easyMessage(text):
+def easy_message(text):
     r = send_message(text, os.environ.get("TELEGRAM_TOKEN"), os.environ.get("TELEGRAM_CHAT_ID"))
     return r
 
 if __name__=="__main__":
-    print(easyMessage("Hello World!").text)
+    print(easy_message("Hello World!").text)

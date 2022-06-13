@@ -12,7 +12,7 @@ class DatabaseModule:
             self.delete_table()
         self.create_table()
         
-    def insert_data(self,data):
+    def insert_power_data(self,data):
         db = sqlite3.connect(self.database_name)
         db.execute(f'''REPLACE INTO HistoricPower 
                    (time,solar_power, grid_power, house_power, twc_power, heater_power, heater_mode) 
@@ -20,14 +20,61 @@ class DatabaseModule:
                    )
         db.commit()
         db.close()
-        self.get_sum()
+        self.update_energy_day()
         
-    def select_data_day(self,date):
+    def select_power_day(self,date):
         db = sqlite3.connect(self.database_name)
         df = pd.read_sql(f'''SELECT * FROM HistoricPower WHERE DATE(time)='{date}' ''', db)
         db.close()
         return df
     
+    def insert_energy_day(self,data,date=date.today()):
+        db = sqlite3.connect(self.database_name)
+        if 'solar_predicted' in data:
+            db.execute(f'''REPLACE INTO DailyEnergy
+                    (date,solar_energy,solar_predicted,grid_energy, twc_energy, twc_green_precentage, heater_energy, heater_green_precentage, house_energy,house_green_precentage)
+                    VALUES ("{date}",{data['solar_energy']},{data['solar_predicted']}, {data['grid_energy']},
+                    {data['twc_energy']}, {data['twc_green_precentage']},
+                    {data['heater_energy']}, {data['heater_green_precentage']},
+                    {data['house_energy']}, {data['house_green_precentage']}
+                    )'''
+                    )
+        else:
+            db.execute(f'''REPLACE INTO DailyEnergy
+                    (date,solar_energy,grid_energy, twc_energy, twc_green_precentage, heater_energy, heater_green_precentage, house_energy,house_green_precentage)
+                    VALUES ("{date}",{data['solar_energy']}, {data['grid_energy']},
+                    {data['twc_energy']}, {data['twc_green_precentage']},
+                    {data['heater_energy']}, {data['heater_green_precentage']},
+                    {data['house_energy']}, {data['house_green_precentage']}
+                    )'''
+                    )
+        db.commit()
+        db.close()
+    
+    def update_energy_day(self,date_=date.today()):
+        # TODO Sum * minute
+        db = sqlite3.connect(self.database_name)
+        db.execute(f'''REPLACE INTO DailyEnergy(date,solar_energy,solar_predicted,grid_energy,twc_energy,heater_energy,house_energy)
+                   SELECT
+                   DATE(time) AS date,
+                   (SUM(solar_power) * 1/60) as solar_energy,
+                   (SELECT solar_predicted FROM DailyEnergy WHERE date=DATE(time)) as solar_predicted,
+                   (SUM(grid_power) * 1/60) as grid_energy,
+                   (SUM(twc_power) * 1 /60) as twc_energy,
+                   (SUM(heater_power) * 1/60) as heater_energy,
+                   (SUM(house_power) * 1/60) as house_energy
+                   FROM HistoricPower
+                   WHERE DATE(time)='{date_}'
+                   ''')
+        db.commit()
+        db.close()
+    
+    def select_energy_day(self,date=date.today()):
+        db = sqlite3.connect(self.database_name)
+        df = pd.read_sql(f'''SELECT * FROM DailyEnergy WHERE date='{date}' ''', db)#WHERE date='{date}'
+        db.close()
+        return df
+
     def create_table(self):
         db = sqlite3.connect(self.database_name)
         db.execute('''CREATE TABLE IF NOT EXISTS HistoricPower (
@@ -62,59 +109,13 @@ class DatabaseModule:
         db.execute('''DROP TABLE IF EXISTS DailyEnergy''')
         db.close()
         
-    def insert_daily_energy(self,data,date=date.today()):
-        db = sqlite3.connect(self.database_name)
-        if 'solar_predicted' in data:
-            db.execute(f'''REPLACE INTO DailyEnergy
-                    (date,solar_energy,solar_predicted,grid_energy, twc_energy, twc_green_precentage, heater_energy, heater_green_precentage, house_energy,house_green_precentage)
-                    VALUES ("{date}",{data['solar_energy']},{data['solar_predicted']}, {data['grid_energy']},
-                    {data['twc_energy']}, {data['twc_green_precentage']},
-                    {data['heater_energy']}, {data['heater_green_precentage']},
-                    {data['house_energy']}, {data['house_green_precentage']}
-                    )'''
-                    )
-        else:
-            db.execute(f'''REPLACE INTO DailyEnergy
-                    (date,solar_energy,grid_energy, twc_energy, twc_green_precentage, heater_energy, heater_green_precentage, house_energy,house_green_precentage)
-                    VALUES ("{date}",{data['solar_energy']}, {data['grid_energy']},
-                    {data['twc_energy']}, {data['twc_green_precentage']},
-                    {data['heater_energy']}, {data['heater_green_precentage']},
-                    {data['house_energy']}, {data['house_green_precentage']}
-                    )'''
-                    )
-        db.commit()
-        db.close()
-    
-    def get_sum(self,date=date.today()):
-        # TODO Sum * minute
-        db = sqlite3.connect(self.database_name)
-        db.execute(f'''REPLACE INTO DailyEnergy(date,solar_energy,solar_predicted,grid_energy,twc_energy,heater_energy,house_energy)
-                   SELECT
-                   DATE(time) AS date,
-                   (SUM(solar_power) * 1/60) as solar_energy,
-                   (SELECT solar_predicted FROM DailyEnergy WHERE date=DATE(time)) as solar_predicted,
-                   (SUM(grid_power) * 1/60) as grid_energy,
-                   (SUM(twc_power) * 1 /60) as twc_energy,
-                   (SUM(heater_power) * 1/60) as heater_energy,
-                   (SUM(house_power) * 1/60) as house_energy
-                   FROM HistoricPower
-                   WHERE DATE(time)='{date}'
-                   ''')
-        db.commit()
-        db.close()
-    
-    def select_daily_energy(self,date=date.today()):
-        db = sqlite3.connect(self.database_name)
-        df = pd.read_sql(f'''SELECT * FROM DailyEnergy WHERE date='{date}' ''', db)#WHERE date='{date}'
-        db.close()
-        return df
-
+        
 if __name__ == '__main__':
     import requests
     from datetime import datetime
     db = DatabaseModule('data/SolarDatabase.db',False)
     
-    df = db.select_data_day(date.today())
+    df = db.select_power_day(date.today())
     print(df)
 
     

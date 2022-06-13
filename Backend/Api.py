@@ -28,7 +28,7 @@ def daily():
         
         # d = date.fromisoformat(data['date'])
         
-        df = db.select_data_day(d)
+        df = db.select_power_day(d)
         return json.dumps({"status": "ok", "data": df.to_dict()})
     except KeyError:
         return json.dumps({"status": "error expected key: date"})
@@ -48,7 +48,7 @@ def house_energy():
         else:
             d = date.fromisoformat(d)
         
-        energy = db.select_daily_energy(d).to_dict()
+        energy = db.select_energy_day(d).to_dict()
         if len(energy['date']) == 0: # Means it is in the future
             return json.dumps({"status": "error: No data for that day"})
         

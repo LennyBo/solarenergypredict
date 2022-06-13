@@ -26,28 +26,28 @@ def log_power():
     if res.status_code == 200:
         response = res.json()
         if response['status'] == 'ok':
-            db.insert_data(response['data'])
+            db.insert_power_data(response['data'])
         else:
             print(f'{datetime.now()} error: {response["status"]}')
     else:
         print("Error: " + str(res.status_code))
 
-    df = db.select_data_day(date.today())
+    df = db.select_power_day(date.today())
     print(df)
     
-    print(db.select_daily_energy())
-    print(db.select_daily_energy(date.today() + timedelta(days=1)))
+    print(db.select_energy_day())
+    print(db.select_energy_day(date.today() + timedelta(days=1)))
     
     nextJobTime = get_next_job_time(datetime.now(), every)
     schedule.every((nextJobTime - datetime.now()).total_seconds()).seconds.do(log_power)
     
     return schedule.CancelJob
 
-def predict_next_day():
+def update_power_prediction_nextday():
     # TODO Handle exceptions
     #Insert prediction for tomorrow
     prediction = forecaset_power_output(get_weather_next_day())[0]
-    db.insert_daily_energy(
+    db.insert_energy_day(
                            {'solar_energy':0,'solar_predicted':prediction,'grid_energy':0,'twc_energy':0,
                             'twc_green_precentage':0,'heater_energy':0,
                             'heater_green_precentage':0,'house_energy':0,
@@ -57,12 +57,12 @@ def predict_next_day():
 
 db = DatabaseModule('data/SolarDatabase.db',False)
 log_power()
-schedule.every().day.at("20:00").do(predict_next_day)
+schedule.every().day.at("20:00").do(update_power_prediction_nextday)
 
 while True:
     try:
         schedule.run_pending()
     except Exception as e:
-        easy_message(f'Script encoutered an error\n{e}')
+        easy_message(f'Script encoutered an error\n{e}') # Send error through telegram
     finally:
         time.sleep(1) # Every second, see if there is a job to run

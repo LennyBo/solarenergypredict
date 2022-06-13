@@ -71,6 +71,7 @@ def create_vit_classifier():
         # Skip connection 2.
         encoded_patches = layers.Add()([x3, x2])
 
+    encoded_patches = layers.LSTM(units=projection_dim, return_sequences=True)(encoded_patches)
     # Create a [batch_size, projection_dim] tensor.
     representation = layers.LayerNormalization(epsilon=1e-6)(encoded_patches)
     representation = layers.Flatten()(representation)

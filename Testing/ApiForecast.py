@@ -6,11 +6,13 @@ from tensorflow import keras
 from Tools.VisualCrossingApi import get_weather_next_day, exampleResponse
 from datetime import datetime
 import numpy as np
+import tensorflow_addons as tfa
 
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' # Removes tensorflow console spam
 
-MODEL_TO_LOAD = 'VisualCrossing_LSTM_model.h5'
+MODEL_TO_LOAD = 'VisualCrossing_Transformer_401.67'
+# MODEL_TO_LOAD = 'VisualCrossing_LSTM_model.h5'
 
 
 def forecaset_power_output(df):

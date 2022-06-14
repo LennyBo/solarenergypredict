@@ -74,7 +74,7 @@ def create_vit_classifier():
     # Create a [batch_size, projection_dim] tensor.
     representation = layers.LayerNormalization(epsilon=1e-6)(encoded_patches)
     representation = layers.Flatten()(representation)
-    representation = layers.Dropout(0.5)(representation)
+    representation = layers.Dropout(0.2)(representation)
     # Add MLP.
     features = mlp(representation, hidden_units=mlp_head_units, dropout_rate=0.1)
     # Classify outputs.
@@ -96,7 +96,16 @@ def run_experiment(model):
         ],
     )
     
-    callbacks = [keras.callbacks.EarlyStopping(patience=50, restore_best_weights=True)]
+    earlyStop = keras.callbacks.EarlyStopping(patience=25, restore_best_weights=False)
+    checkpoint = tf.keras.callbacks.ModelCheckpoint(
+            filepath='tmp/checkpoint',
+            save_weights_only=True,
+            monitor='mae',
+            mode='min',
+            save_best_only=True
+            )
+
+    callbacks = [earlyStop, checkpoint] 
     
     history = model.fit(
         x=X_train,
@@ -106,23 +115,21 @@ def run_experiment(model):
         validation_split=0.1,
         callbacks=callbacks,
     )
+    
+    model.load_weights('tmp/checkpoint')
 
-    score = model.evaluate(X_test, y_test, verbose=0)
-
-    roundDecimal = 2
-    print("\n\nTest results:")
-    print('Mean absolute error:', round(score[1], roundDecimal))
-    print('Mean squared error :', round(score[0], roundDecimal))
-
-    return history
+    return model
 
 
 TEST_SIZE = 0.16 # Precent
-VAL_SIZE = 360 # Days
+VAL_SIZE = 360 * 2 # Days
+
+SAVE_MODEL = True
+SAVE_PATH = "./models/VisualCrossing_Transformer_"
 
 learning_rate = 0.001
 weight_decay = 0.0001
-batch_size = 64
+batch_size = 128
 num_epochs = 200
 image_size = 72  # We'll resize input images to this size
 patch_size = 6  # Size of the patches to be extract from the input images
@@ -133,8 +140,8 @@ transformer_units = [
     projection_dim * 2,
     projection_dim,
 ]  # Size of the transformer layers
-transformer_layers = 10
-mlp_head_units = [200, 100,50,10]  # Size of the dense layers of the final classifier
+transformer_layers = 12
+mlp_head_units = [500, 200,10]  # Size of the dense layers of the final classifier
 
 
 print("Loading dataset...")
@@ -153,14 +160,14 @@ X_train, X_test, y_train, y_test = (
     y[0:int(length*(1-TEST_SIZE))],
     y[int(length*(1-TEST_SIZE)):],
 )
-val_length = 360
+
 length = len(y_train)
 
 X_train, X_val, y_train, y_val = (
-    X_train[0:length - val_length],
-    X_train[length - val_length:],
-    y_train[0:length - val_length],
-    y_train[length - val_length:],
+    X_train[0:length - VAL_SIZE],
+    X_train[length - VAL_SIZE:],
+    y_train[0:length - VAL_SIZE],
+    y_train[length - VAL_SIZE:],
 )
 
 input_shape = X_train.shape[1:]
@@ -200,13 +207,25 @@ for i, patch in enumerate(patches[0]):
     plt.axis("off")
     
 
-optimizer = tfa.optimizers.AdamW(
-    learning_rate=learning_rate, weight_decay=weight_decay
-)
 
 vit_classifier = create_vit_classifier()
-history = run_experiment(vit_classifier)
+model = run_experiment(vit_classifier)
+
+
+
+score = model.evaluate(X_test, y_test)
+
+roundDecimal = 2
+print("\n\nTest results:")
+print('Mean absolute error:', round(score[1], roundDecimal))
+print('Mean squared error :', round(score[0], roundDecimal))
+
 
 
     
 
+if SAVE_MODEL:
+    # models.load_model('myModel.h5', custom_objects={'MyOptimizer': MyOptimizer})
+    path = SAVE_PATH + f"{round(score[1], roundDecimal)}"
+    model.save(path)
+    print(f"Model saved to {path}")

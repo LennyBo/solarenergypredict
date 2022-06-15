@@ -7,7 +7,7 @@ import numpy as np
 from datetime import datetime,timedelta
 from DatabaseModule import DatabaseModule
 from Tools.VisualCrossingApi import get_weather_next_day
-from Testing.ApiForecast import forecaset_power_output
+from Testing.ApiForecast import forecast_power_output
 import requests
 from datetime import date
 from Tools.Telegram import easy_message
@@ -46,7 +46,7 @@ def log_power():
 def update_power_prediction_nextday():
     # TODO Handle exceptions
     #Insert prediction for tomorrow
-    prediction = forecaset_power_output(get_weather_next_day())[0]
+    prediction = forecast_power_output(get_weather_next_day())[0]
     db.insert_energy_day(
                            {'solar_energy':0,'solar_predicted':prediction,'grid_energy':0,'twc_energy':0,
                             'twc_green_precentage':0,'heater_energy':0,

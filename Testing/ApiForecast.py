@@ -11,11 +11,11 @@ import tensorflow_addons as tfa
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' # Removes tensorflow console spam
 
-MODEL_TO_LOAD = 'VisualCrossing_Transformer_401.67'
-# MODEL_TO_LOAD = 'VisualCrossing_LSTM_model.h5'
+# MODEL_TO_LOAD = 'VisualCrossing_Transformer_401.67'
+MODEL_TO_LOAD = 'VisualCrossing_LSTM_model.h5'
 
 
-def forecaset_power_output(df):
+def forecast_power_output(df):
     df["Ghi"] = np.zeros(len(df))
     df["Ghi_NextDay"] = np.zeros(len(df))
     
@@ -29,6 +29,6 @@ def forecaset_power_output(df):
     
 
 if __name__ == "__main__":
-    predictions = forecaset_power_output(get_weather_next_day())
+    predictions = forecast_power_output(get_weather_next_day())
     
     print(predictions)

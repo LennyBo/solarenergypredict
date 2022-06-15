@@ -64,7 +64,7 @@ def Preprocessing(df):
         dayOfTheYear = df["datetime"][i].timetuple().tm_yday
         xTemp["dayOfTheYear"] = [dayOfTheYear] * len(xTemp)
 
-        xTemp = np.asarray(xTemp).reshape(len(xTemp), len(xTemp.columns),1)
+        xTemp = np.asarray(xTemp) # .reshape(len(xTemp), len(xTemp.columns),1)
         # xTemp = np.concatenate((xTemp, xTemp,xTemp), axis=2) # Resnet needs 3 channels
         
         x.append(xTemp)

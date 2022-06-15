@@ -22,18 +22,18 @@ class DatabaseModule:
         db.close()
         self.update_energy_day()
         
-    def select_power_day(self,date):
+    def select_power_day(self,date_):
         db = sqlite3.connect(self.database_name)
-        df = pd.read_sql(f'''SELECT * FROM HistoricPower WHERE DATE(time)='{date}' ''', db)
+        df = pd.read_sql(f'''SELECT * FROM HistoricPower WHERE DATE(time)='{date_}' ''', db)
         db.close()
         return df
     
-    def insert_energy_day(self,data,date=date.today()):
+    def insert_energy_day(self,data,date_=date.today()):
         db = sqlite3.connect(self.database_name)
         if 'solar_predicted' in data:
             db.execute(f'''REPLACE INTO DailyEnergy
                     (date,solar_energy,solar_predicted,grid_energy, twc_energy, twc_green_precentage, heater_energy, heater_green_precentage, house_energy,house_green_precentage)
-                    VALUES ("{date}",{data['solar_energy']},{data['solar_predicted']}, {data['grid_energy']},
+                    VALUES ("{date_}",{data['solar_energy']},{data['solar_predicted']}, {data['grid_energy']},
                     {data['twc_energy']}, {data['twc_green_precentage']},
                     {data['heater_energy']}, {data['heater_green_precentage']},
                     {data['house_energy']}, {data['house_green_precentage']}
@@ -42,7 +42,7 @@ class DatabaseModule:
         else:
             db.execute(f'''REPLACE INTO DailyEnergy
                     (date,solar_energy,grid_energy, twc_energy, twc_green_precentage, heater_energy, heater_green_precentage, house_energy,house_green_precentage)
-                    VALUES ("{date}",{data['solar_energy']}, {data['grid_energy']},
+                    VALUES ("{date_}",{data['solar_energy']}, {data['grid_energy']},
                     {data['twc_energy']}, {data['twc_green_precentage']},
                     {data['heater_energy']}, {data['heater_green_precentage']},
                     {data['house_energy']}, {data['house_green_precentage']}
@@ -69,9 +69,9 @@ class DatabaseModule:
         db.commit()
         db.close()
     
-    def select_energy_day(self,date=date.today()):
+    def select_energy_day(self,date_=date.today()):
         db = sqlite3.connect(self.database_name)
-        df = pd.read_sql(f'''SELECT * FROM DailyEnergy WHERE date='{date}' ''', db)#WHERE date='{date}'
+        df = pd.read_sql(f'''SELECT * FROM DailyEnergy WHERE date='{date_}' ''', db)#WHERE date='{date}'
         db.close()
         return df
 
@@ -116,6 +116,7 @@ if __name__ == '__main__':
     db = DatabaseModule('data/SolarDatabase.db',False)
     
     df = db.select_power_day(date.today())
+    print(date)
     print(df)
 
     

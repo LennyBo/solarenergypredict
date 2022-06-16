@@ -63,7 +63,7 @@ def plot_metrics(history, metrics):
 
 
 if __name__ == "__main__":
-    EPOCHS = 10
+    EPOCHS = 200
     BATCH_SIZE = 256
     TEST_SIZE = 0.16 # Precent
     VAL_SIZE = 360 # Days
@@ -101,13 +101,13 @@ if __name__ == "__main__":
     print("Compiling model...\n")
     
     model = Sequential()
-    model.add(layers.BatchNormalization(input_shape=(x[0].shape)))
-    model.add(layers.Conv1D(filters=64, kernel_size=3, activation='relu'))
-    model.add(layers.MaxPooling1D(pool_size=2))
+    # model.add(layers.BatchNormalization(input_shape=(x[0].shape)))
     # model.add(layers.Conv1D(filters=64, kernel_size=3, activation='relu'))
+    # model.add(layers.MaxPooling1D(pool_size=2))
+    # # model.add(layers.Conv1D(filters=64, kernel_size=3, activation='relu'))
     model.add(layers.LSTM(units=64, return_sequences=True))
-    # model.add(layers.BatchNormalization())
-    model.add(layers.Flatten())
+    # # model.add(layers.BatchNormalization())
+    # model.add(layers.Flatten())
     model.add(Dense(200, activation="relu"))
     model.add(Dense(100, activation="relu"))
     model.add(Dense(50, activation="relu"))
@@ -154,6 +154,6 @@ if __name__ == "__main__":
         converter.optimizations = [tf.lite.Optimize.DEFAULT]
         converter.experimental_new_converter=True
         converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS,tf.lite.OpsSet.SELECT_TF_OPS]
-
+        
         tfmodel = converter.convert()
         open(SAVE_FILE + '.tflite', 'wb').write(tfmodel)

@@ -7,6 +7,7 @@ from Tools.Shelly import heater_power, tesla_power
 from Tools.SolarEdgeModbus import CallModbus
 import requests
 import pandas as pd
+from Tools.ApiRequest import make_request
 
 
 def get_rnd_value():
@@ -18,6 +19,15 @@ class I_House_Controller:
         pass
     
     def get_power():
+        pass
+    
+    def set_heater_overdrive():
+        pass
+    
+    def set_heater_normal():
+        pass
+    
+    def set_heater_off():
         pass
 
 class Simulated_House(I_House_Controller):
@@ -32,15 +42,10 @@ class Simulated_House(I_House_Controller):
         return data
     
     def call_simulator(self):
-        res = requests.get('http://localhost:8081/simulator/power')
-        if res.status_code == 200:
-            data = res.json()
-            if data['status'] == 'ok':
-                return data['data']
-            else:
-                print(f'{datetime.now()} error: {data["status"]}')
-        else:
-            print("Error: " + str(res.status_code))
+        return make_request('http://localhost:8081/simulator/power')['data']
+            
+    
+    
 
 class Real_House(I_House_Controller):
    

@@ -1,3 +1,5 @@
+import sys
+sys.path.append( '.' ) # Adds parent directory so we can import other modules
 import streamlit as st
 import time
 import numpy as np
@@ -5,6 +7,8 @@ from PIL import Image
 import requests
 from datetime import datetime,date, timedelta
 import pandas as pd
+from Tools.ApiRequest import make_request
+
 st.set_page_config(layout="wide") # Needs to be the first st command
 
 
@@ -107,43 +111,22 @@ class TeslaWallChargerWidget (UpdateingWidget):
         return super().update()
         
 def apiUpdate():
-    res = requests.get('http://localhost:8080/house/power')
-    if res.status_code == 200:
-        jsonRes = res.json()
-        if jsonRes['status'] == 'ok':
-            d = jsonRes['data']
-            d = {k:to_kilo(v) for k,v in d.items()}
-            return d
-        else:
-            print(f'{datetime.now()} error: {jsonRes["status"]}')
-    else:
-        print("Error: " + str(res.status_code))        
+    d = make_request('http://localhost:8080/house/power')['data']
+    d = {k:to_kilo(v) for k,v in d.items()}
+    return d      
 
 def local_css(file_name):
     with open(file_name) as f:
         st.markdown('<style>{}</style>'.format(f.read()), unsafe_allow_html=True)
 
 def get_daily_data(d):
-    res = requests.get('http://localhost:8080/house/power/day?date=' + d.strftime('%Y-%m-%d'))
-    if res.status_code == 200:
-        data = res.json()
-        if data['status'] == 'ok':
-            return pd.DataFrame(data['data'])
-        else:
-            print(f'{datetime.now()} error: {data["status"]}')
-    else:
-        print("Error: " + str(res.status_code))
+    data = make_request('http://localhost:8080/house/power/day?date=' + d.strftime('%Y-%m-%d'))['data']
+    return pd.DataFrame(data)
+    
         
 def get_day_summary(d):
-    res = requests.get('http://localhost:8080/house/energy?date=' + d.strftime('%Y-%m-%d'))
-    if res.status_code == 200:
-        data = res.json()
-        if data['status'] == 'ok':
-            return data['data']
-        else:
-            print(f'{datetime.now()} error: {data["status"]}')
-    else:
-        print("Error: " + str(res.status_code))
+    data = make_request('http://localhost:8080/house/energy?date=' + d.strftime('%Y-%m-%d'))["data"]
+    return data
 
 def get_date():
     getQ = st.experimental_get_query_params()

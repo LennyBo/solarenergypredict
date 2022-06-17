@@ -10,6 +10,7 @@ from DatabaseModule import DatabaseModule
 import requests
 from datetime import date
 from Tools.Telegram import easy_message
+from Tools.ApiRequest import make_request
 
 every = 1 # minutes
 
@@ -22,15 +23,9 @@ def get_next_job_time(time, interval):
 def log_power():
     print(f'{datetime.now()} job')
     try:
-        res = requests.get('http://localhost:8080/house/power')
-        if res.status_code == 200:
-            response = res.json()
-            if response['status'] == 'ok':
-                db.insert_power_data(response['data'])
-            else:
-                print(f'{datetime.now()} error: {response["status"]}')
-        else:
-            print("Error: " + str(res.status_code))
+        data = make_request('http://localhost:8080/house/power')['data']
+        
+        db.insert_power_data(data)
 
         df = db.select_power_day(date.today())
         print(df)

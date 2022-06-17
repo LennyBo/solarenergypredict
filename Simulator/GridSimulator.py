@@ -8,6 +8,13 @@ from Backend.DatabaseModule import database as db
 import json
 import numpy as np
 
+print(''' ▄▄▄▄▄▄▄ ▄▄▄▄▄▄   ▄▄▄ ▄▄▄▄▄▄     ▄▄▄▄▄▄▄ ▄▄▄ ▄▄   ▄▄ ▄▄   ▄▄ ▄▄▄     ▄▄▄▄▄▄▄ ▄▄▄▄▄▄▄ ▄▄▄▄▄▄▄ ▄▄▄▄▄▄   
+█       █   ▄  █ █   █      █   █       █   █  █▄█  █  █ █  █   █   █       █       █       █   ▄  █  
+█   ▄▄▄▄█  █ █ █ █   █  ▄    █  █  ▄▄▄▄▄█   █       █  █ █  █   █   █   ▄   █▄     ▄█   ▄   █  █ █ █  
+█  █  ▄▄█   █▄▄█▄█   █ █ █   █  █ █▄▄▄▄▄█   █       █  █▄█  █   █   █  █▄█  █ █   █ █  █ █  █   █▄▄█▄ 
+█  █ █  █    ▄▄  █   █ █▄█   █  █▄▄▄▄▄  █   █       █       █   █▄▄▄█       █ █   █ █  █▄█  █    ▄▄  █
+█  █▄▄█ █   █  █ █   █       █   ▄▄▄▄▄█ █   █ ██▄██ █       █       █   ▄   █ █   █ █       █   █  █ █
+█▄▄▄▄▄▄▄█▄▄▄█  █▄█▄▄▄█▄▄▄▄▄▄█   █▄▄▄▄▄▄▄█▄▄▄█▄█   █▄█▄▄▄▄▄▄▄█▄▄▄▄▄▄▄█▄▄█ █▄▄█ █▄▄▄█ █▄▄▄▄▄▄▄█▄▄▄█  █▄█''')
 
 available_modes = ['normal','overdrive','off']
 heater_mode = available_modes[0]
@@ -44,7 +51,6 @@ def simulator_power():
 def simulator_heater_setmode():
     global heater_mode
     query = request.query.mode
-    print(query,heater_mode)
     if query in available_modes:
         heater_mode = query
         return json.dumps({"status": "ok", "data": heater_mode})

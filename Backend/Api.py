@@ -1,7 +1,9 @@
+from platform import platform
 import sys
 sys.path.append( '.' ) # Adds parent directory so we can import other modules
 
 import json
+from sys import platform
 from Tools.Shelly import heater_power, tesla_power
 from bottle import run, post, request, response,get
 from datetime import date,datetime
@@ -9,6 +11,14 @@ import numpy as np
 from Backend.DatabaseModule import database as db
 import Dataparser as dp
 
+
+print(''' ▄▄▄▄▄▄▄ ▄▄▄▄▄▄▄ ▄▄▄▄▄▄▄ ▄▄▄   ▄ ▄▄▄▄▄▄▄ ▄▄    ▄ ▄▄▄▄▄▄  ▄▄▄▄▄▄▄ ▄▄▄▄▄▄▄ ▄▄▄ 
+█  ▄    █       █       █   █ █ █       █  █  █ █      ██       █       █   █
+█ █▄█   █   ▄   █       █   █▄█ █    ▄▄▄█   █▄█ █  ▄    █   ▄   █    ▄  █   █
+█       █  █▄█  █     ▄▄█      ▄█   █▄▄▄█       █ █ █   █  █▄█  █   █▄█ █   █
+█  ▄   ██       █    █  █     █▄█    ▄▄▄█  ▄    █ █▄█   █       █    ▄▄▄█   █
+█ █▄█   █   ▄   █    █▄▄█    ▄  █   █▄▄▄█ █ █   █       █   ▄   █   █   █   █
+█▄▄▄▄▄▄▄█▄▄█ █▄▄█▄▄▄▄▄▄▄█▄▄▄█ █▄█▄▄▄▄▄▄▄█▄█  █▄▄█▄▄▄▄▄▄██▄▄█ █▄▄█▄▄▄█   █▄▄▄█''')
 
 #TODO change to /house/power
 @get('/house/power/day')
@@ -76,6 +86,9 @@ def house_power():
 def power():
     return ["pong"]
 
-data_parser = dp.Simulator_Dataparser()
+if platform != 'linux':
+    data_parser = dp.Simulator_Dataparser()
+else:
+    data_parser = dp.True_Parser() # if it is running on the pi we always want to do the real calls
 
 run(host='localhost', port=8080, debug=False,server='cheroot')

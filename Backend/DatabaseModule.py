@@ -110,7 +110,7 @@ class DatabaseModule:
 database = DatabaseModule('data/SolarDatabase.db',False) # to import
 
 if __name__ == '__main__':
-    df = db.select_power_day(date.today())
+    df = database.select_power_day(date.today())
     print(date)
     print(df)
 

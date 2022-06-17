@@ -45,6 +45,9 @@ def log_power():
     
     return schedule.CancelJob
 
+def control_components():
+    pass
+
 # def update_power_prediction_nextday():
 #     # TODO Handle exceptions
 #     #Insert prediction for tomorrow
@@ -60,6 +63,7 @@ def log_power():
 db = DatabaseModule('data/SolarDatabase.db',False)
 log_power()
 # schedule.every().day.at("20:00").do(update_power_prediction_nextday)
+schedule.every().minute.do(control_components)
 
 while True:
     try:

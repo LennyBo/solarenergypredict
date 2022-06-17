@@ -87,8 +87,8 @@ def power():
     return ["pong"]
 
 if platform != 'linux':
-    data_parser = dp.Simulator_Dataparser()
+    data_parser = dp.Simulated_House()
 else:
-    data_parser = dp.True_Parser() # if it is running on the pi we always want to do the real calls
+    data_parser = dp.Real_House() # if it is running on the pi we always want to do the real calls
 
 run(host='localhost', port=8080, debug=False,server='cheroot')

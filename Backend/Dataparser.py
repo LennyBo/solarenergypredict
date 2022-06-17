@@ -12,7 +12,7 @@ import pandas as pd
 def get_rnd_value():
     return np.random.randint(500, 3000)
 
-class I_Dataparser:
+class I_House_Controller:
     
     def __init__(self):
         pass
@@ -20,7 +20,7 @@ class I_Dataparser:
     def get_power():
         pass
 
-class Simulator_Dataparser(I_Dataparser):
+class Simulated_House(I_House_Controller):
     def __init__(self):
         pass
     
@@ -42,7 +42,7 @@ class Simulator_Dataparser(I_Dataparser):
         else:
             print("Error: " + str(res.status_code))
 
-class True_Parser(I_Dataparser):
+class Real_House(I_House_Controller):
    
     def get_power(self):
             d = datetime.now().replace(second=0, microsecond=0)
@@ -61,7 +61,7 @@ class True_Parser(I_Dataparser):
             }
             return di
 
-class Random_Dataparser(I_Dataparser):
+class Random_Values(I_House_Controller):
     
     def __init__(self):
         pass
@@ -82,5 +82,5 @@ class Random_Dataparser(I_Dataparser):
 
 
 if __name__ == '__main__':
-    dp = Simulator_Dataparser().get_power()
+    dp = Simulated_House().get_power()
     

@@ -29,7 +29,18 @@ dataToStream['time'] = dataToStream['time'].apply(lambda x: datetime.fromisoform
 dataToStream = dataToStream.set_index('time').drop('id',axis=1)
 
 def heater_power(historic_heater):
-    return historic_heater
+    if heater_mode == 'normal':
+        return historic_heater + np.random.normal(0,500)
+    if heater_mode == 'overdrive':
+        return 10000 + np.random.normal(0,500)
+    if heater_mode == 'off':
+        return 0
+
+def house_power():
+    return 500 + np.random.normal(0, 50)
+
+def tesla_power(historic_tesla):
+    return historic_tesla + np.random.normal(0,500)
 
 @get('/simulator/power')
 def simulator_power():
@@ -37,8 +48,16 @@ def simulator_power():
     nearest_index = dataToStream.index.get_indexer([current_time], method='nearest')
     nearest_row = dataToStream.iloc[nearest_index[0]].to_dict()
     
+    nearest_row['heater_power'] = heater_power(nearest_row['heater_power'])
+    nearest_row['twc_power'] = tesla_power(nearest_row['twc_power'])
+    nearest_row['house_power'] = house_power() + nearest_row['twc_power'] + nearest_row['heater_power']
+    
+    
+    nearest_row['grid_power'] = nearest_row['solar_power'] - nearest_row['house_power']
+    
     nearest_row['heater_mode'] = heater_mode
     nearest_row['twc_mode'] = 'eco' # FIXME
+    
     
     
     # nearest_index['heater_power'] = heater_power(nearest_index['heater_power'])

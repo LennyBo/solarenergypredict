@@ -1,5 +1,4 @@
 import requests
-import json
 SHELLY_IP_HEATER = "192.168.0.65"
 SHELLY_IP_TESLA = "192.168.0.163"
 

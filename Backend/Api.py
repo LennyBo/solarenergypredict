@@ -73,21 +73,21 @@ def house_energy():
 @get('/house/power')
 def house_power():
     d = datetime.now().replace(second=0, microsecond=0)
-    # solar_edge = CallModbus()
-    # tesla = tesla_power()
-    # heater = heater_power()
+    solar_edge = CallModbus()
+    tesla = tesla_power()
+    heater = heater_power()
     di = {
         'time':d.isoformat(),
-        # 'solar_power': solar_edge['solar'], 
-        # 'grid_power': solar_edge['grid'], 
-        # 'house_power': solar_edge['house'], 
-        # 'twc_power': tesla, 
-        # 'heater_power': heater,
-        'solar_power': get_rnd_value(), 
-        'grid_power': get_rnd_value(), 
-        'house_power': get_rnd_value(), 
-        'twc_power': get_rnd_value(), 
-        'heater_power': get_rnd_value(),
+        'solar_power': solar_edge['solar'], 
+        'grid_power': solar_edge['grid'], 
+        'house_power': solar_edge['house'], 
+        'twc_power': tesla, 
+        'heater_power': heater,
+        # 'solar_power': get_rnd_value(), 
+        # 'grid_power': get_rnd_value(), 
+        # 'house_power': get_rnd_value(), 
+        # 'twc_power': get_rnd_value(), 
+        # 'heater_power': get_rnd_value(),
         'heater_mode': 'Overdrive',
         'twc_mode': 'Eco'
         }

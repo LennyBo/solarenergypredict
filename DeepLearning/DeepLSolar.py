@@ -149,7 +149,7 @@ if __name__ == "__main__":
         print(f"Model saved to {SAVE_FILE}")
 
         from tensorflow import lite
-        converter = lite.TFLiteConverter.from_keras_model(model)
+        converter = lite.TFLiteConverter.from_keras_model_file(SAVE_FILE)
 
         converter.optimizations = [tf.lite.Optimize.DEFAULT]
         converter.experimental_new_converter=True

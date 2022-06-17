@@ -1,7 +1,5 @@
 import sqlite3
-from traceback import print_tb
 import pandas as pd
-from requests import delete
 from datetime import date
 
 

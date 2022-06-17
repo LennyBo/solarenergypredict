@@ -1,4 +1,3 @@
-from http.cookiejar import Cookie
 import random,string
 from base64 import urlsafe_b64encode
 import requests as r

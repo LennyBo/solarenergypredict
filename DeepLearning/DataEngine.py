@@ -77,7 +77,7 @@ def getFiles(inputDir):
 
     for _root, _dirs, files in os.walk(inputDir):
         for file in files:
-            filesArray.append(inputDir + file)
+            filesArray.append(_root + file)
 
     return filesArray
 

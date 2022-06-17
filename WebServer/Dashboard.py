@@ -8,7 +8,6 @@ import pandas as pd
 st.set_page_config(layout="wide") # Needs to be the first st command
 
 
-
 class WidgetController:
     def __init__(self,cols,widgetCount) -> None:
         self.cols = cols

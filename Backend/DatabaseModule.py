@@ -107,12 +107,9 @@ class DatabaseModule:
         db.execute('''DROP TABLE IF EXISTS DailyEnergy''')
         db.close()
         
-        
+database = DatabaseModule('data/SolarDatabase.db',False) # to import
+
 if __name__ == '__main__':
-    import requests
-    from datetime import datetime
-    db = DatabaseModule('data/SolarDatabase.db',False)
-    
     df = db.select_power_day(date.today())
     print(date)
     print(df)

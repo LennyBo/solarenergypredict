@@ -1,17 +1,14 @@
 import sys
-
-
 sys.path.append( '.' ) # Adds parent directory so we can import other modules
+
 import json
 from Tools.Shelly import heater_power, tesla_power
 from bottle import run, post, request, response,get
 from datetime import date,datetime
 import numpy as np
-from Backend.DatabaseModule import DatabaseModule
-from Tools.SolarEdgeModbus import CallModbus
+from Backend.DatabaseModule import database as db
+import Dataparser as dp
 
-def get_rnd_value():
-    return np.random.randint(500, 3000)
 
 #TODO change to /house/power
 @get('/house/power/day')
@@ -72,31 +69,13 @@ def house_energy():
 
 @get('/house/power')
 def house_power():
-    d = datetime.now().replace(second=0, microsecond=0)
-    solar_edge = CallModbus()
-    tesla = tesla_power()
-    heater = heater_power()
-    di = {
-        'time':d.isoformat(),
-        'solar_power': solar_edge['solar'], 
-        'grid_power': solar_edge['grid'], 
-        'house_power': solar_edge['house'], 
-        'twc_power': tesla, 
-        'heater_power': heater,
-        # 'solar_power': get_rnd_value(), 
-        # 'grid_power': get_rnd_value(), 
-        # 'house_power': get_rnd_value(), 
-        # 'twc_power': get_rnd_value(), 
-        # 'heater_power': get_rnd_value(),
-        'heater_mode': 'Overdrive',
-        'twc_mode': 'Eco'
-        }
-    return json.dumps({"status": "ok", "data": di}).encode('utf-8')
+    
+    return json.dumps({"status": "ok", "data": data_parser.get_power()}).encode('utf-8')
     
 @get('/ping')
 def power():
     return ["pong"]
 
+data_parser = dp.Simulator_Dataparser()
 
-db = DatabaseModule('data/SolarDatabase.db')
 run(host='localhost', port=8080, debug=False,server='cheroot')

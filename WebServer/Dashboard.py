@@ -258,5 +258,5 @@ while True:
     pastData = currentData
     currentData = apiUpdate()
     wc.update_all()
-    time.sleep(1)
+    time.sleep(5)
 

@@ -125,8 +125,10 @@ def get_daily_data(d):
     
         
 def get_day_summary(d):
-    data = make_request('http://localhost:8080/house/energy?date=' + d.strftime('%Y-%m-%d'))["data"]
-    return data
+    data = make_request('http://localhost:8080/house/energy?date=' + d.strftime('%Y-%m-%d'))
+    if 'data' in data.keys():
+        return data['data']
+    return None
 
 def get_date():
     getQ = st.experimental_get_query_params()

@@ -30,7 +30,7 @@ dataToStream = dataToStream.set_index('time').drop('id',axis=1)
 
 def heater_power(historic_heater):
     if heater_mode == 'normal':
-        return historic_heater + np.random.normal(0,500)
+        return historic_heater
     if heater_mode == 'overdrive':
         return 10000 + np.random.normal(0,500)
     if heater_mode == 'off':

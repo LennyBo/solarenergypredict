@@ -1,4 +1,5 @@
 from platform import platform
+from sre_parse import State
 import sys
 sys.path.append( '.' ) # Adds parent directory so we can import other modules
 
@@ -44,7 +45,17 @@ def daily():
     except Exception as e:
         print(e)
         return json.dumps({"status": "unknown error"})
-
+    
+@get('/house/heater')
+def house_components():
+    state = request.query.mode
+    print(state)
+    if state in ['overdrive', 'normal', 'off']:
+        data_parser.set_heater(state)
+        return json.dumps({"status": "ok"})
+    else:
+        return json.dumps({"status": "error expected state: overdrive, normal, off"})
+    
 
 @get('/house/energy')
 def house_energy():
@@ -79,7 +90,6 @@ def house_energy():
 
 @get('/house/power')
 def house_power():
-    
     return json.dumps({"status": "ok", "data": data_parser.get_power()}).encode('utf-8')
     
 @get('/ping')

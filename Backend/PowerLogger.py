@@ -90,18 +90,12 @@ def update_power_prediction_nextday():
 
 
 db = DatabaseModule('data/SolarDatabase.db',False)
-<<<<<<< HEAD
 
 update_power_prediction_nextday()
 log_power()
 schedule.every().day.at("20:00").do(update_power_prediction_nextday)
 schedule.every().minute.do(control_components)
-=======
-control_components()
-log_power()
-# schedule.every().day.at("20:00").do(update_power_prediction_nextday)
-schedule.every(5).seconds.do(control_components)
->>>>>>> e2c18f4155a41e79d33e3566e54c475fceb92248
+
 
 while True:
     try:

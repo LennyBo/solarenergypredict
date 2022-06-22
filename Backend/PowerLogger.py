@@ -5,8 +5,8 @@ import time
 import schedule
 from datetime import datetime,timedelta
 from DatabaseModule import DatabaseModule
-# from Tools.VisualCrossingApi import get_weather_next_day
-# from Testing.ApiForecast import forecast_power_output
+from Tools.VisualCrossingApi import get_weather_next_day
+from Testing.ApiForecast import forecast_power_output
 import requests
 from datetime import date
 from Tools.Telegram import easy_message
@@ -28,10 +28,7 @@ def log_power():
         db.insert_power_data(data)
 
         df = db.select_power_day(date.today())
-        print(df)
         
-        print(db.select_energy_day())
-        print(db.select_energy_day(date.today() + timedelta(days=1)))
     except requests.exceptions.ConnectionError:
         print('No connection to API')
     finally:
@@ -43,21 +40,23 @@ def log_power():
 def control_components():
     pass
 
-# def update_power_prediction_nextday():
-#     # TODO Handle exceptions
-#     #Insert prediction for tomorrow
-#     prediction = forecast_power_output(get_weather_next_day())[0]
-#     db.insert_energy_day(
-#                            {'solar_energy':0,'solar_predicted':prediction,'grid_energy':0,'twc_energy':0,
-#                             'twc_green_precentage':0,'heater_energy':0,
-#                             'heater_green_precentage':0,'house_energy':0,
-#                             'house_green_precentage':0},
-#                            date.today() + timedelta(days=1))
+def update_power_prediction_nextday():
+    # TODO Handle exceptions
+    #Insert prediction for tomorrow
+    prediction = forecast_power_output(get_weather_next_day())[0]
+    db.insert_energy_day(
+                           {'solar_energy':0,'solar_predicted':prediction,'grid_energy':0,'twc_energy':0,
+                            'twc_green_precentage':0,'heater_energy':0,
+                            'heater_green_precentage':0,'house_energy':0,
+                            'house_green_precentage':0},
+                           date.today() + timedelta(days=1))
 
 
 db = DatabaseModule('data/SolarDatabase.db',False)
+
+update_power_prediction_nextday()
 log_power()
-# schedule.every().day.at("20:00").do(update_power_prediction_nextday)
+schedule.every().day.at("20:00").do(update_power_prediction_nextday)
 schedule.every().minute.do(control_components)
 
 while True:

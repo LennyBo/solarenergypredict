@@ -18,16 +18,13 @@ class I_House_Controller:
     def __init__(self):
         pass
     
-    def get_power():
+    def get_power(self):
         pass
     
-    def set_heater_overdrive():
+    def get_components_state(self):
         pass
     
-    def set_heater_normal():
-        pass
-    
-    def set_heater_off():
+    def set_heater(self,state):
         pass
 
 class Simulated_House(I_House_Controller):
@@ -43,6 +40,10 @@ class Simulated_House(I_House_Controller):
     
     def call_simulator(self):
         return make_request('http://localhost:8081/simulator/power')['data']
+    
+    def set_heater(self,state):
+        make_request(f'http://localhost:8081/simulator/heater/setmode?mode={state}') # TODO: Maybe add a check if the state is valid
+    
             
     
     

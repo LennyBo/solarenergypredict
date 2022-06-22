@@ -1,6 +1,4 @@
 import sys
-
-from matplotlib.style import available
 sys.path.append( '.' ) # Adds parent directory so we can import other modules
 from bottle import run, post, request, response,get
 from datetime import datetime, date
@@ -23,24 +21,23 @@ DAY_DATA = date(2022, 6, 10)
 now = datetime.now()
 dataToStream = db.select_power_day(DAY_DATA) # Will be used to stream data to simulate
 
+heater_power = 6000
+tesla_power = 8000
+house_power = 500
+
  # FIXME: Will stop working after midnight
 dataToStream['time'] = dataToStream['time'].apply(lambda x: datetime.fromisoformat(x).replace(year=now.year,month=now.month,day=now.day))
 
 dataToStream = dataToStream.set_index('time').drop('id',axis=1)
 
-def heater_power(historic_heater):
-    if heater_mode == 'normal':
-        return historic_heater + np.random.normal(0,500)
-    if heater_mode == 'overdrive':
-        return 10000 + np.random.normal(0,500)
-    if heater_mode == 'off':
-        return 0
+def get_heater_power():
+    return heater_power + np.random.normal(0,500)
 
-def house_power():
-    return 500 + np.random.normal(0, 50)
+def get_house_power():
+    return house_power + np.random.normal(0, 50)
 
-def tesla_power(historic_tesla):
-    return historic_tesla + np.random.normal(0,500)
+def get_tesla_power():
+    return tesla_power + np.random.normal(0,500)
 
 @get('/simulator/power')
 def simulator_power():
@@ -48,9 +45,9 @@ def simulator_power():
     nearest_index = dataToStream.index.get_indexer([current_time], method='nearest')
     nearest_row = dataToStream.iloc[nearest_index[0]].to_dict()
     
-    nearest_row['heater_power'] = heater_power(nearest_row['heater_power'])
-    nearest_row['twc_power'] = tesla_power(nearest_row['twc_power'])
-    nearest_row['house_power'] = house_power() + nearest_row['twc_power'] + nearest_row['heater_power']
+    nearest_row['heater_power'] = get_heater_power()
+    nearest_row['twc_power'] = get_tesla_power()
+    nearest_row['house_power'] = get_house_power() + nearest_row['twc_power'] + nearest_row['heater_power']
     
     
     nearest_row['grid_power'] = nearest_row['solar_power'] - nearest_row['house_power']
@@ -75,6 +72,33 @@ def simulator_heater_setmode():
         return json.dumps({"status": "ok", "data": heater_mode})
     return json.dumps({"status": "error: unknown mode"})
 
+
+@get('/simulator/setpower')
+def simulator_set_power():
+    global heater_power
+    global tesla_power
+    global house_power
+    heater_p = request.query.heater
+    tesla_p = request.query.tesla
+    house_p = request.query.house
+    
+    try:
+        heater_p = int(heater_p)
+        tesla_p = int(tesla_p)
+        house_p = int(house_p)
+        print(heater_p,tesla_p,house_p)
+        
+        heater_power = heater_p
+        tesla_power = tesla_p
+        house_power = house_p
+        
+        
+        return json.dumps({"status": "ok", "data": "Power set"})
+    except ValueError:
+        return json.dumps({"status": "error: invalid power"})
+    
+        
+        
 
 run(host='localhost', port=8081, debug=False,server='cheroot')
     

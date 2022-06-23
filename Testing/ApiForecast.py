@@ -2,30 +2,36 @@ import sys
 sys.path.append( '.' ) # Adds parent directory so we can import other modules
 from DeepLearning.DataEngine import Preprocessing
 from Tools.SolarLib import ghiToPower
-from tensorflow import keras
-from Tools.VisualCrossingApi import get_weather_next_day, exampleResponse
-from datetime import datetime
+import tensorflow.lite as tflite
+from Tools.VisualCrossingApi import get_weather_next_day
 import numpy as np
-import tensorflow_addons as tfa
 
 import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' # Removes tensorflow console spam
-
-# MODEL_TO_LOAD = 'VisualCrossing_Transformer_401.67'
-MODEL_TO_LOAD = 'VisualCrossing_LSTM_model.h5'
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '4' # Removes console spam
 
 
 def forecast_power_output(df):
     df["Ghi"] = np.zeros(len(df))
     df["Ghi_NextDay"] = np.zeros(len(df))
     
-    model = keras.models.load_model('models/' + MODEL_TO_LOAD)
     
     x,_ = Preprocessing(df)
+    
+    x = np.float32(x)
+    
+    TFLITE_FILE_PATH = './models/VisualCrossing_LSTM_model.h5.tflite'
+    # Load the TFLite model in TFLite Interpreter
+    interpreter = tflite.Interpreter(model_path=TFLITE_FILE_PATH)
+    input_data = x
+    
+    interpreter.allocate_tensors()
+    interpreter.set_tensor(interpreter.get_input_details()[0]['index'], input_data)
+    
+    interpreter.invoke()
+    
+    output_data = interpreter.get_tensor(interpreter.get_output_details()[0]['index'])
 
-    res = model.predict(x)
-
-    return [int(ghiToPower(x[0])) for x in res]
+    return [int(ghiToPower(x[0])) for x in output_data]
     
 
 if __name__ == "__main__":

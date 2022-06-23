@@ -51,6 +51,7 @@ class DatabaseModule:
     
     def update_energy_day(self,date_=date.today()):
         # TODO Sum * minute
+        print(date_)
         db = sqlite3.connect(self.database_name)
         db.execute(f'''REPLACE INTO DailyEnergy(date,solar_energy,solar_predicted,grid_energy,twc_energy,heater_energy,house_energy)
                    SELECT

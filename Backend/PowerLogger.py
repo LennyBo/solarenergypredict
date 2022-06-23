@@ -54,17 +54,21 @@ def control_components():
         grid_power = data['grid_power']
         
         # Decide what components to turn up/down
-        if grid_power < -500: # We are buying power from the grid
+        if grid_power < -1000: # We are buying power from the grid
             # Turn components down
             if heater_mode == 'overdrive': #and heater_power < 2000: # If the heater is currently running, it is not good practice to force stop it
                 # Turn heater down
                 print('Turning heater down')
                 make_request('http://localhost:8080/house/heater?mode=normal')
+            elif twc_power > 1000: # Tesla is charging
+                print('Stopping tesla charge') # Does not work so no request just for testing
         elif grid_power + heater_power > 6000: # We are selling power to the grid
             if heater_mode == 'normal':
                 # Turn heater up
                 print('Turning heater up')
                 make_request('http://localhost:8080/house/heater?mode=overdrive')
+            elif twc_power < 1000: # Tesla is not charging
+                print('Starting tesla charge')
             
     except requests.exceptions.ConnectionError:
         print('No connection to API') # Since it is every minute we can just wait for the next job

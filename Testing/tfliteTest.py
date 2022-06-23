@@ -5,11 +5,11 @@ from DeepLearning.DataEngine import Preprocessing
 from Tools.SolarLib import ghiToPower
 
 import tensorflow.lite as tflite
-# if platform == "linux" or platform == "linux2": # Since we can't use tensorflow on the pi, we use tflite_runtime there
-#     import tflite_runtime.interpreter as tflite
-# else:
-#     import tensorflow.lite as tflite
-#     # import tflite_runtime.interpreter as tflite
+if platform == "linux" or platform == "linux2": # Since we can't use tensorflow on the pi, we use tflite_runtime there
+    import tflite_runtime.interpreter as tflite
+else:
+    import tensorflow.lite as tflite
+    # import tflite_runtime.interpreter as tflite
 
 from Tools.VisualCrossingApi import get_weather_next_day, exampleResponse
 import numpy as np

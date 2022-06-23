@@ -5,7 +5,7 @@ import schedule
 from datetime import datetime,timedelta
 from DatabaseModule import DatabaseModule
 from Tools.VisualCrossingApi import get_weather_next_day
-from Testing.ApiForecast import forecast_power_output
+from Tools.ApiForecast import forecast_power_output
 import requests
 from datetime import date
 from Tools.Telegram import easy_message

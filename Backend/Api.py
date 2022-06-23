@@ -9,7 +9,7 @@ from bottle import run, post, request, response,get
 from datetime import date
 import numpy as np
 from Backend.DatabaseModule import database as db
-import Dataparser as dp
+import HouseInterface as house_I
 from multiprocessing import Process
 
 from PowerController import run_power_logger
@@ -100,9 +100,9 @@ if __name__ == '__main__':
 █▄▄▄▄▄▄▄█▄▄█ █▄▄█▄▄▄▄▄▄▄█▄▄▄█ █▄█▄▄▄▄▄▄▄█▄█  █▄▄█▄▄▄▄▄▄██▄▄█ █▄▄█▄▄▄█   █▄▄▄█''')
     if platform != 'linux':
         import Simulator.GridSimulator # Will add the routes for the simulator
-        data_parser = dp.Simulated_House()
+        data_parser = house_I.Simulated_House()
     else:
-        data_parser = dp.Real_House() # if it is running on the pi we always want to do the real calls
+        data_parser = house_I.Real_House() # if it is running on the pi we always want to do the real calls
 
     thread_controller = Process(target=run_power_logger)
     thread_controller.daemon = True

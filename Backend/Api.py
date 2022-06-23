@@ -15,10 +15,6 @@ from multiprocessing import Process
 from PowerController import run_power_logger
 
 
-
-
-
-#TODO change to /house/power
 @get('/house/power/day')
 def daily():
     

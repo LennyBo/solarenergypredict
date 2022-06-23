@@ -75,12 +75,6 @@ def control_components():
         print('No connection to API') # Since it is every minute we can just wait for the next job
     
     
-    
-    
-    
-    
-    
-
 def update_power_prediction_nextday():
     # TODO Handle exceptions
     #Insert prediction for tomorrow

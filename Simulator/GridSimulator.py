@@ -99,6 +99,3 @@ dataToStream['time'] = dataToStream['time'].apply(lambda x: datetime.fromisoform
 
 dataToStream = dataToStream.set_index('time').drop('id',axis=1)
     
-
-if __name__ == '__main__':
-    run_grid_simulator()

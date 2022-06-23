@@ -1,6 +1,6 @@
 import sqlite3
 import pandas as pd
-from datetime import date
+from datetime import date,datetime
 
 
 class DatabaseModule:
@@ -18,7 +18,8 @@ class DatabaseModule:
                    )
         db.commit()
         db.close()
-        self.update_energy_day()
+        date_ = datetime.fromisoformat(data['time']).date()
+        self.update_energy_day(date_=date_)
         
     def select_power_day(self,date_):
         db = sqlite3.connect(self.database_name)

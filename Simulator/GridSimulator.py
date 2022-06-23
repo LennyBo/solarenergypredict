@@ -6,30 +6,6 @@ from Backend.DatabaseModule import database as db
 import json
 import numpy as np
 
-print(''' ▄▄▄▄▄▄▄ ▄▄▄▄▄▄   ▄▄▄ ▄▄▄▄▄▄     ▄▄▄▄▄▄▄ ▄▄▄ ▄▄   ▄▄ ▄▄   ▄▄ ▄▄▄     ▄▄▄▄▄▄▄ ▄▄▄▄▄▄▄ ▄▄▄▄▄▄▄ ▄▄▄▄▄▄   
-█       █   ▄  █ █   █      █   █       █   █  █▄█  █  █ █  █   █   █       █       █       █   ▄  █  
-█   ▄▄▄▄█  █ █ █ █   █  ▄    █  █  ▄▄▄▄▄█   █       █  █ █  █   █   █   ▄   █▄     ▄█   ▄   █  █ █ █  
-█  █  ▄▄█   █▄▄█▄█   █ █ █   █  █ █▄▄▄▄▄█   █       █  █▄█  █   █   █  █▄█  █ █   █ █  █ █  █   █▄▄█▄ 
-█  █ █  █    ▄▄  █   █ █▄█   █  █▄▄▄▄▄  █   █       █       █   █▄▄▄█       █ █   █ █  █▄█  █    ▄▄  █
-█  █▄▄█ █   █  █ █   █       █   ▄▄▄▄▄█ █   █ ██▄██ █       █       █   ▄   █ █   █ █       █   █  █ █
-█▄▄▄▄▄▄▄█▄▄▄█  █▄█▄▄▄█▄▄▄▄▄▄█   █▄▄▄▄▄▄▄█▄▄▄█▄█   █▄█▄▄▄▄▄▄▄█▄▄▄▄▄▄▄█▄▄█ █▄▄█ █▄▄▄█ █▄▄▄▄▄▄▄█▄▄▄█  █▄█''')
-
-available_modes = ['normal','overdrive','off']
-heater_mode = available_modes[0]
-
-DAY_DATA = date(2022, 6, 10)
-now = datetime.now()
-dataToStream = db.select_power_day(DAY_DATA) # Will be used to stream data to simulate
-
-heater_power = 6000
-tesla_power = 8000
-house_power = 500
-
- # FIXME: Will stop working after midnight
-dataToStream['time'] = dataToStream['time'].apply(lambda x: datetime.fromisoformat(x).replace(year=now.year,month=now.month,day=now.day))
-
-dataToStream = dataToStream.set_index('time').drop('id',axis=1)
-
 def get_heater_power():
     return heater_power + np.random.normal(0,500)
 
@@ -99,6 +75,30 @@ def simulator_set_power():
     
         
         
+print(''' ▄▄▄▄▄▄▄ ▄▄▄▄▄▄   ▄▄▄ ▄▄▄▄▄▄     ▄▄▄▄▄▄▄ ▄▄▄ ▄▄   ▄▄ ▄▄   ▄▄ ▄▄▄     ▄▄▄▄▄▄▄ ▄▄▄▄▄▄▄ ▄▄▄▄▄▄▄ ▄▄▄▄▄▄   
+█       █   ▄  █ █   █      █   █       █   █  █▄█  █  █ █  █   █   █       █       █       █   ▄  █  
+█   ▄▄▄▄█  █ █ █ █   █  ▄    █  █  ▄▄▄▄▄█   █       █  █ █  █   █   █   ▄   █▄     ▄█   ▄   █  █ █ █  
+█  █  ▄▄█   █▄▄█▄█   █ █ █   █  █ █▄▄▄▄▄█   █       █  █▄█  █   █   █  █▄█  █ █   █ █  █ █  █   █▄▄█▄ 
+█  █ █  █    ▄▄  █   █ █▄█   █  █▄▄▄▄▄  █   █       █       █   █▄▄▄█       █ █   █ █  █▄█  █    ▄▄  █
+█  █▄▄█ █   █  █ █   █       █   ▄▄▄▄▄█ █   █ ██▄██ █       █       █   ▄   █ █   █ █       █   █  █ █
+█▄▄▄▄▄▄▄█▄▄▄█  █▄█▄▄▄█▄▄▄▄▄▄█   █▄▄▄▄▄▄▄█▄▄▄█▄█   █▄█▄▄▄▄▄▄▄█▄▄▄▄▄▄▄█▄▄█ █▄▄█ █▄▄▄█ █▄▄▄▄▄▄▄█▄▄▄█  █▄█''')
 
-run(host='localhost', port=8081, debug=False,server='cheroot')
+available_modes = ['normal','overdrive','off']
+heater_mode = available_modes[0]
+
+DAY_DATA = date(2022, 6, 10)
+now = datetime.now()
+dataToStream = db.select_power_day(DAY_DATA) # Will be used to stream data to simulate
+
+heater_power = 6000
+tesla_power = 8000
+house_power = 500
+
+# FIXME: Will stop working after midnight
+dataToStream['time'] = dataToStream['time'].apply(lambda x: datetime.fromisoformat(x).replace(year=now.year,month=now.month,day=now.day))
+
+dataToStream = dataToStream.set_index('time').drop('id',axis=1)
     
+
+if __name__ == '__main__':
+    run_grid_simulator()

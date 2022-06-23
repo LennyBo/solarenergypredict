@@ -92,19 +92,20 @@ def update_power_prediction_nextday():
                             'house_green_precentage':0},
                            date.today() + timedelta(days=1))
 
+def run_power_logger():
+    global db
+    db = DatabaseModule('data/SolarDatabase.db',False)
 
-db = DatabaseModule('data/SolarDatabase.db',False)
+    update_power_prediction_nextday()
+    log_power()
+    schedule.every().day.at("20:00").do(update_power_prediction_nextday)
+    schedule.every().minute.do(control_components)
 
-update_power_prediction_nextday()
-log_power()
-schedule.every().day.at("20:00").do(update_power_prediction_nextday)
-schedule.every().minute.do(control_components)
-
-
-while True:
-    try:
-        schedule.run_pending()
-    except Exception as e:
-        easy_message(f'Script encoutered an error\n{e}') # Send error through telegram
-    finally:
-        time.sleep(1) # Every second, see if there is a job to run
+    print('Power logger started')
+    while True:
+        try:
+            schedule.run_pending()
+        except Exception as e:
+            easy_message(f'Script encoutered an error\n{e}') # Send error through telegram
+        finally:
+            time.sleep(1) # Every second, see if there is a job to run

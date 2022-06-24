@@ -13,13 +13,26 @@ def is_equal(a, b, tolerance=dead_zone):
 with teslapy.Tesla('lenny.boegli@moosvolk.ch') as tesla:
     vehicles = tesla.vehicle_list()
     tesla = vehicles[0]
+    
     latest_data = tesla.get_latest_vehicle_data()
     position = (latest_data['drive_state']['latitude'], latest_data['drive_state']['longitude'])
     print(position)
     if is_equal(position[0], house_lat) and is_equal(position[1], house_lon):
         print("You are at home!")
+        try:
+            tesla.sync_wake_up()
+            tesla.command('CHANGE_CHARGE_LIMIT', percent=90)
+            tesla.command('START_CHARGING')
+            print("Charging to 90% Started")
+        except teslapy.VehicleError:
+            print("Vehicle error, not syncing")
     else:
         print("You are not at home!")
+    
+    
+    # CHANGE_CHARGE_LIMIT
+    # START_CHARGE
+    # STOP_CHARGE
     
     exit()
     print(vehicles)

@@ -11,16 +11,7 @@ def  random_string(size):
 code_verifier = random_string(86)
 code_challenge = urlsafe_b64encode(code_verifier.encode('utf-8')).decode('utf-8')
 
-print("https://auth.tesla.com/oauth2/v3/authorize?"\
-                    "client_id=ownerapi&"\
-                    f"code_challenge={code_challenge}&"\
-                    "code_challenge_method=S256&"\
-                    "redirect_uri=https://auth.tesla.com/void/callback&"\
-                    "response_type=code&"\
-                    "scope=openid email offline_access&"\
-                    "state=12345&"\
-                    "login_hint=lenny.boegli@moosvolk.ch")
-exit()
+
 
 # with open("response.html", "r") as f:
 #     responseStr = f.read()

@@ -129,7 +129,7 @@ SAVE_PATH = "./models/VisualCrossing_Transformer_"
 
 learning_rate = 0.001
 weight_decay = 0.0001
-batch_size = 128
+batch_size = 64
 num_epochs = 200
 image_size = 72  # We'll resize input images to this size
 patch_size = 6  # Size of the patches to be extract from the input images

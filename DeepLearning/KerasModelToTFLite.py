@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-model_to_convert = "./models/VisualCrossing_LSTM_model.h5"
+model_to_convert = "./models/VisualCrossing_Transformer_506.89"
 
 model = tf.keras.models.load_model(model_to_convert)
 

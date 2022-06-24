@@ -27,7 +27,7 @@ class DatabaseModule:
         db.close()
         return df
     
-    def insert_energy_day(self,data,date_=date.today()):
+    def insert_energy_day(self,data,date_):
         db = sqlite3.connect(self.database_name)
         if 'solar_predicted' in data:
             db.execute(f'''REPLACE INTO DailyEnergy
@@ -50,9 +50,8 @@ class DatabaseModule:
         db.commit()
         db.close()
     
-    def update_energy_day(self,date_=date.today()):
+    def update_energy_day(self,date_):
         # TODO Sum * minute
-        print(date_)
         db = sqlite3.connect(self.database_name)
         db.execute(f'''REPLACE INTO DailyEnergy(date,solar_energy,solar_predicted,grid_energy,twc_energy,heater_energy,house_energy)
                    SELECT
@@ -69,7 +68,7 @@ class DatabaseModule:
         db.commit()
         db.close()
     
-    def select_energy_day(self,date_=date.today()):
+    def select_energy_day(self,date_):
         db = sqlite3.connect(self.database_name)
         df = pd.read_sql(f'''SELECT * FROM DailyEnergy WHERE date='{date_}' ''', db)#WHERE date='{date}'
         db.close()

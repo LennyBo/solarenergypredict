@@ -192,13 +192,16 @@ df['import'] = df['grid_power'].apply(lambda x: abs(x) if x < 0 else 0)
 df['export'] = df['grid_power'].apply(lambda x: x if x > 0 else 0)
 
 # Only keep to info we want to show
-# TODO: Make this configurable
-# TODO: Add diffrent columns for solar vs grid power for heater, twc and house
 df = df.drop(df.columns.difference(['heater_power','twc_power',"house_power","export"]), axis=1)
 
 # Altair sorts the columns alphabetically, and there seems to be no way to hard code which color goes for what
 # so we need to sort them manually
 df = df.rename(columns={"heater_power":"2_Heater","twc_power":"1_Tesla","house_power":"3_House","export":"0_Export"})
+
+
+# Altair sorts the columns alphabetically, and there seems to be no way to hard code which color goes for what
+# so we need to sort them manually
+df = df.rename(columns={"heater_green":"2_House_green","heater_red":"1_House_red","export":"0_Export"})
 
 colors = ['#00ff00','#ff1803','#e4852b','#0000ff']
 

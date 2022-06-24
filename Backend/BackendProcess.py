@@ -5,23 +5,16 @@ sys.path.append( '.' ) # Adds parent directory so we can import other modules
 
 import json
 from sys import platform
-from Tools.Shelly import heater_power, tesla_power
 from bottle import run, post, request, response,get
-from datetime import date,datetime
+from datetime import date
 import numpy as np
 from Backend.DatabaseModule import database as db
-import Dataparser as dp
+import HouseInterface as house_I
+from multiprocessing import Process
+
+from PowerController import run_power_logger
 
 
-print(''' ▄▄▄▄▄▄▄ ▄▄▄▄▄▄▄ ▄▄▄▄▄▄▄ ▄▄▄   ▄ ▄▄▄▄▄▄▄ ▄▄    ▄ ▄▄▄▄▄▄  ▄▄▄▄▄▄▄ ▄▄▄▄▄▄▄ ▄▄▄ 
-█  ▄    █       █       █   █ █ █       █  █  █ █      ██       █       █   █
-█ █▄█   █   ▄   █       █   █▄█ █    ▄▄▄█   █▄█ █  ▄    █   ▄   █    ▄  █   █
-█       █  █▄█  █     ▄▄█      ▄█   █▄▄▄█       █ █ █   █  █▄█  █   █▄█ █   █
-█  ▄   ██       █    █  █     █▄█    ▄▄▄█  ▄    █ █▄█   █       █    ▄▄▄█   █
-█ █▄█   █   ▄   █    █▄▄█    ▄  █   █▄▄▄█ █ █   █       █   ▄   █   █   █   █
-█▄▄▄▄▄▄▄█▄▄█ █▄▄█▄▄▄▄▄▄▄█▄▄▄█ █▄█▄▄▄▄▄▄▄█▄█  █▄▄█▄▄▄▄▄▄██▄▄█ █▄▄█▄▄▄█   █▄▄▄█''')
-
-#TODO change to /house/power
 @get('/house/power/day')
 def daily():
     
@@ -92,13 +85,28 @@ def house_energy():
 def house_power():
     return json.dumps({"status": "ok", "data": data_parser.get_power()}).encode('utf-8')
     
+
 @get('/ping')
 def power():
     return ["pong"]
 
-if platform != 'linux':
-    data_parser = dp.Simulated_House()
-else:
-    data_parser = dp.Real_House() # if it is running on the pi we always want to do the real calls
+if __name__ == '__main__':
+    print(''' ▄▄▄▄▄▄▄ ▄▄▄▄▄▄▄ ▄▄▄▄▄▄▄ ▄▄▄   ▄ ▄▄▄▄▄▄▄ ▄▄    ▄ ▄▄▄▄▄▄  ▄▄▄▄▄▄▄ ▄▄▄▄▄▄▄ ▄▄▄ 
+█  ▄    █       █       █   █ █ █       █  █  █ █      ██       █       █   █
+█ █▄█   █   ▄   █       █   █▄█ █    ▄▄▄█   █▄█ █  ▄    █   ▄   █    ▄  █   █
+█       █  █▄█  █     ▄▄█      ▄█   █▄▄▄█       █ █ █   █  █▄█  █   █▄█ █   █
+█  ▄   ██       █    █  █     █▄█    ▄▄▄█  ▄    █ █▄█   █       █    ▄▄▄█   █
+█ █▄█   █   ▄   █    █▄▄█    ▄  █   █▄▄▄█ █ █   █       █   ▄   █   █   █   █
+█▄▄▄▄▄▄▄█▄▄█ █▄▄█▄▄▄▄▄▄▄█▄▄▄█ █▄█▄▄▄▄▄▄▄█▄█  █▄▄█▄▄▄▄▄▄██▄▄█ █▄▄█▄▄▄█   █▄▄▄█''')
+    if platform != 'linux':
+        import Simulator.GridSimulator # Will add the routes for the simulator
+        data_parser = house_I.Simulated_House()
+    else:
+        data_parser = house_I.Real_House() # if it is running on the pi we always want to do the real calls
 
-run(host='localhost', port=8080, debug=False,server='cheroot')
+    thread_controller = Process(target=run_power_logger)
+    thread_controller.daemon = True
+    thread_controller.start()
+    
+    run(host='localhost', port=8080, debug=False,server='cheroot')
+

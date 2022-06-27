@@ -101,9 +101,9 @@ if __name__ == "__main__":
     print("Compiling model...\n")
     
     model = Sequential()
-    # model.add(layers.BatchNormalization(input_shape=(x[0].shape)))
-    # model.add(layers.Conv1D(filters=64, kernel_size=3, activation='relu'))
-    # model.add(layers.MaxPooling1D(pool_size=2))
+    model.add(layers.BatchNormalization(input_shape=(x[0].shape)))
+    model.add(layers.Conv1D(filters=64, kernel_size=3, activation='relu'))
+    model.add(layers.MaxPooling1D(pool_size=2))
     # # model.add(layers.Conv1D(filters=64, kernel_size=3, activation='relu'))
     model.add(layers.LSTM(units=64, return_sequences=True))
     # # model.add(layers.BatchNormalization())
@@ -147,13 +147,3 @@ if __name__ == "__main__":
     if SAVE_MODEL:
         model.save(SAVE_FILE)
         print(f"Model saved to {SAVE_FILE}")
-
-        from tensorflow import lite
-        converter = lite.TFLiteConverter.from_keras_model_file(SAVE_FILE)
-
-        converter.optimizations = [tf.lite.Optimize.DEFAULT]
-        converter.experimental_new_converter=True
-        converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS,tf.lite.OpsSet.SELECT_TF_OPS]
-        
-        tfmodel = converter.convert()
-        open(SAVE_FILE + '.tflite', 'wb').write(tfmodel)

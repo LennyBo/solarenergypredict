@@ -98,12 +98,13 @@ def control_components():
                 
         except requests.exceptions.ConnectionError:
             print('No connection to API') # Since it is every minute we can just wait for the next job
-    elif now < sunrise and now > sunrise - timedelta(hours=1): # If we are close to sunrise
-        res = make_request('http://localhost:8080/house/energy')['data']
-        solar_prediction = res['solar_predicted']
-        if solar_prediction > 55000: # if Panels will produce power
-            print('Turning heater off until sunrise')
-            make_request('http://localhost:8080/house/heater?mode=off')
+            
+    # elif now < sunrise and now > sunrise - timedelta(hours=1): # If we are close to sunrise
+    #     res = make_request('http://localhost:8080/house/energy')['data']
+    #     solar_prediction = res['solar_predicted']
+    #     if solar_prediction > 55000: # if Panels will produce power
+    #         print('Turning heater off until sunrise')
+    #         make_request('http://localhost:8080/house/heater?mode=off')
     
     
     

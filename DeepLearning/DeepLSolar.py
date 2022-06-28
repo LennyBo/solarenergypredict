@@ -63,7 +63,7 @@ def plot_metrics(history, metrics):
 
 
 if __name__ == "__main__":
-    EPOCHS = 200
+    EPOCHS = 500
     BATCH_SIZE = 256
     TEST_SIZE = 0.16 # Precent
     VAL_SIZE = 360 # Days
@@ -107,7 +107,7 @@ if __name__ == "__main__":
     # # model.add(layers.Conv1D(filters=64, kernel_size=3, activation='relu'))
     model.add(layers.LSTM(units=64, return_sequences=True))
     # # model.add(layers.BatchNormalization())
-    # model.add(layers.Flatten())
+    model.add(layers.Flatten())
     model.add(Dense(200, activation="relu"))
     model.add(Dense(100, activation="relu"))
     model.add(Dense(50, activation="relu"))
@@ -120,7 +120,7 @@ if __name__ == "__main__":
     
     print(f"Training with epochs={EPOCHS} batch_size={BATCH_SIZE}...\n")
 
-    callbacks = [keras.callbacks.EarlyStopping(patience=30, restore_best_weights=True)]
+    callbacks = [keras.callbacks.EarlyStopping(patience=50, restore_best_weights=True)]
     
     
     trainHistory = model.fit(
@@ -147,3 +147,13 @@ if __name__ == "__main__":
     if SAVE_MODEL:
         model.save(SAVE_FILE)
         print(f"Model saved to {SAVE_FILE}")
+
+        from tensorflow import lite
+        converter = lite.TFLiteConverter.from_keras_model(model)
+
+        converter.optimizations = [tf.lite.Optimize.DEFAULT]
+        converter.experimental_new_converter=True
+        converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS,tf.lite.OpsSet.SELECT_TF_OPS]
+        
+        tfmodel = converter.convert()
+        open(SAVE_FILE + '.tflite', 'wb').write(tfmodel)

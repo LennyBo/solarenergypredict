@@ -37,7 +37,7 @@ def control_components():
     elif not is_heater_on and heater_mode == 'overdrive' and not is_charging_tesla: # Heater off / overdrive / tesla not charging
         if grid_power > min_tesla_on_power and is_tesla_home:
             tesla_start_charge()
-        if grid_power < 0:
+        if grid_power < 6000:
             heater_normal()
     elif is_heater_on and heater_mode == 'normal' and not is_charging_tesla: # Heater on / normal / tesla not charging
         if grid_power > min_tesla_on_power and is_tesla_home:

@@ -8,6 +8,7 @@ from Tools.SolarEdgeModbus import CallModbus
 import requests
 import pandas as pd
 from Tools.ApiRequest import make_request
+from Tools.Shelly import set_heater_off, set_heater_eco, set_heater_normal, set_heater_overdrive,get_heater_mode
 
 
 def get_rnd_value():
@@ -62,7 +63,7 @@ class Real_House(I_House_Controller):
                 'house_power': solar_edge['house'], 
                 'twc_power': tesla, 
                 'heater_power': heater,
-                'heater_mode': 'Overdrive', # FIXME
+                'heater_mode': get_heater_mode(),
                 'twc_mode': 'Eco' #FIXME
             }
             return di

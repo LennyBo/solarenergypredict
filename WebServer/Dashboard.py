@@ -73,7 +73,7 @@ class SolarWidget (UpdateingWidget):
 class HeaterWidget (UpdateingWidget):
     
     def __init__(self, column):
-        super().__init__(column,'Webserver/images/heater_logo.png')
+        super().__init__(column,'WebServer/images/heater_logo.png')
         
     
     def init(self):
@@ -97,7 +97,7 @@ class HeaterWidget (UpdateingWidget):
 class TeslaWallChargerWidget (UpdateingWidget):
     
     def __init__(self, column):
-        super().__init__(column,'Webserver/images/tesla_logo.png')
+        super().__init__(column,'WebServer/images/tesla_logo.png')
         
     def init(self):
         self.txtMode = self.column.empty()

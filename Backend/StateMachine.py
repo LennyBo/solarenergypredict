@@ -1,11 +1,9 @@
 import sys
-from matplotlib.pyplot import grid
-
-from sklearn.feature_extraction import grid_to_graph
 sys.path.append( '.' ) # Adds parent directory so we can import other modules
 from datetime import datetime
 import requests
 from Tools.ApiRequest import make_request
+from Tools.TeslaControl import start_charge_if_home, stop_charge_if_home
 
 
 heater_on_power = 7000 # When heater is runnning, it uses about 7kw
@@ -31,37 +29,37 @@ def control_components():
     
     is_heater_on,heater_mode, is_charging_tesla, is_tesla_home,grid_power = get_house_state()
     
-    if not is_heater_on and heater_mode == 'normal' and not is_charging_tesla: # heater off / normal / tesla not charging
+    if not is_heater_on and heater_mode == 'Normal' and not is_charging_tesla: # heater off / normal / tesla not charging
         if grid_power > heater_on_power:
             heater_overdrive()
-    elif not is_heater_on and heater_mode == 'overdrive' and not is_charging_tesla: # Heater off / overdrive / tesla not charging
+    elif not is_heater_on and heater_mode == 'Overdrive' and not is_charging_tesla: # Heater off / overdrive / tesla not charging
         if grid_power > min_tesla_on_power and is_tesla_home:
             tesla_start_charge()
         if grid_power < 6000:
             heater_normal()
-    elif is_heater_on and heater_mode == 'normal' and not is_charging_tesla: # Heater on / normal / tesla not charging
+    elif is_heater_on and heater_mode == 'Normal' and not is_charging_tesla: # Heater on / normal / tesla not charging
         if grid_power > min_tesla_on_power and is_tesla_home:
             tesla_start_charge()
         if grid_power > 100:
             heater_overdrive()
-    elif is_heater_on and heater_mode == 'overdrive' and not is_charging_tesla: # Heater on / overdrive / tesla not charging
+    elif is_heater_on and heater_mode == 'Overdrive' and not is_charging_tesla: # Heater on / overdrive / tesla not charging
         if grid_power > min_tesla_on_power and is_tesla_home:
             tesla_start_charge()
-    elif not is_heater_on and heater_mode == 'normal' and is_charging_tesla:
+    elif not is_heater_on and heater_mode == 'Normal' and is_charging_tesla:
         if grid_power > heater_on_power:
             heater_overdrive()
         elif grid_power < -2000: # Not enough sun to charge the tesla TODO check if tesla mode is boost (meaning we overide this rule)
             tesla_stop_charge()
-    elif not is_heater_on and heater_mode == 'overdrive' and is_charging_tesla:
+    elif not is_heater_on and heater_mode == 'Overdrive' and is_charging_tesla:
         if grid_power < -2000:
             tesla_stop_charge()
             heater_normal()
-    elif is_heater_on and heater_mode == 'normal' and is_charging_tesla:
+    elif is_heater_on and heater_mode == 'Normal' and is_charging_tesla:
         if grid_power > 1000:
             heater_overdrive()
         elif grid_power < -2000:
             tesla_stop_charge()
-    elif is_heater_on and heater_mode == 'overdrive' and is_charging_tesla:
+    elif is_heater_on and heater_mode == 'Overdrive' and is_charging_tesla:
         if grid_power < -2000:
             tesla_stop_charge()
     
@@ -81,19 +79,19 @@ def get_house_state():
 
 def heater_normal():
     print('Set heater normal')
-    # make_request('http://localhost:8080/house/heater?mode=normal')
+    make_request('http://localhost:8080/house/heater?mode=normal')
 
 def heater_overdrive():
     print('Set heater overdrive')
-    # make_request('http://localhost:8080/house/heater?mode=overdrive')
+    make_request('http://localhost:8080/house/heater?mode=overdrive')
 
 def tesla_start_charge():
     print('Start tesla charge')
-    # make_request('http://localhost:8080/house/tesla?mode=charge')
+    start_charge_if_home()
 
 def tesla_stop_charge():
     print('Stop tesla charge')
-    # make_request('http://localhost:8080/house/tesla?mode=stop')
+    stop_charge_if_home()
     
 if __name__=="__main__":
     import time

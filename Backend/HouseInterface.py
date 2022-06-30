@@ -52,7 +52,7 @@ class Simulated_House(I_House_Controller):
 class Real_House(I_House_Controller):
    
     def get_power(self):
-            d = datetime.now().replace(second=0, microsecond=0)
+            d = datetime.now().replace()
             solar_edge = CallModbus()
             tesla = tesla_power()
             heater = heater_power()
@@ -67,6 +67,17 @@ class Real_House(I_House_Controller):
                 'twc_mode': 'Eco' #FIXME
             }
             return di
+    
+    def set_heater(self,state):
+        if state == 'Off':
+            set_heater_off()
+        elif state == 'Eco':
+            set_heater_eco()
+        elif state == 'Normal':
+            set_heater_normal()
+        elif state == 'Overdrive':
+            set_heater_overdrive()
+        
 
 class Random_Values(I_House_Controller):
     

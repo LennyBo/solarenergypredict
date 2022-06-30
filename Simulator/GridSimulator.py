@@ -1,6 +1,4 @@
 import sys
-
-from pkg_resources import get_supported_platform
 sys.path.append( '.' ) # Adds parent directory so we can import other modules
 from bottle import run, post, request, response,get
 from datetime import datetime, date
@@ -91,7 +89,7 @@ print(''' ▄▄▄▄▄▄▄ ▄▄▄▄▄▄   ▄▄▄ ▄▄▄▄▄�
 █  █▄▄█ █   █  █ █   █       █   ▄▄▄▄▄█ █   █ ██▄██ █       █       █   ▄   █ █   █ █       █   █  █ █
 █▄▄▄▄▄▄▄█▄▄▄█  █▄█▄▄▄█▄▄▄▄▄▄█   █▄▄▄▄▄▄▄█▄▄▄█▄█   █▄█▄▄▄▄▄▄▄█▄▄▄▄▄▄▄█▄▄█ █▄▄█ █▄▄▄█ █▄▄▄▄▄▄▄█▄▄▄█  █▄█''')
 
-available_modes = ['normal','overdrive','off']
+available_modes = ['Normal','Overdrive','Off']
 heater_mode = available_modes[0]
 
 DAY_DATA = date(2022, 6, 10)

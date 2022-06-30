@@ -6,7 +6,7 @@ sys.path.append( '.' ) # Adds parent directory so we can import other modules
 import json
 from sys import platform
 from bottle import run, post, request, response,get
-from datetime import date
+from datetime import date,datetime,timedelta
 import numpy as np
 from Backend.DatabaseModule import database as db
 import HouseInterface as house_I
@@ -17,7 +17,6 @@ from PowerController import run_power_logger
 
 @get('/house/power/day')
 def daily():
-    
     try:
         d = request.query.date
         if d == '':
@@ -43,11 +42,11 @@ def daily():
 def house_components():
     state = request.query.mode
     print(state)
-    if state in ['overdrive', 'normal', 'off']:
+    if state in ['Overdrive', 'Normal', 'Off']:
         data_parser.set_heater(state)
         return json.dumps({"status": "ok"})
     else:
-        return json.dumps({"status": "error expected state: overdrive, normal, off"})
+        return json.dumps({"status": "error expected state: Overdrive, Normal, Off"})
     
 
 @get('/house/energy')
@@ -81,9 +80,19 @@ def house_energy():
     #     print(e)
     #     return json.dumps({"status": "unknown error"})
 
+def update_power():
+    global power_data
+    power_data = data_parser.get_power()
+
 @get('/house/power')
 def house_power():
-    return json.dumps({"status": "ok", "data": data_parser.get_power()}).encode('utf-8')
+    global power_data
+    
+    if power_data == None or datetime.now() - datetime.fromisoformat(power_data['time']) > timedelta(seconds=4):
+        update_power()
+    else:
+        pass # print('using cached data')
+    return json.dumps({"status": "ok", "data": power_data}).encode('utf-8')
     
 
 @get('/ping')
@@ -91,6 +100,7 @@ def power():
     return ["pong"]
 
 if __name__ == '__main__':
+    power_data = None
     print(''' ▄▄▄▄▄▄▄ ▄▄▄▄▄▄▄ ▄▄▄▄▄▄▄ ▄▄▄   ▄ ▄▄▄▄▄▄▄ ▄▄    ▄ ▄▄▄▄▄▄  ▄▄▄▄▄▄▄ ▄▄▄▄▄▄▄ ▄▄▄ 
 █  ▄    █       █       █   █ █ █       █  █  █ █      ██       █       █   █
 █ █▄█   █   ▄   █       █   █▄█ █    ▄▄▄█   █▄█ █  ▄    █   ▄   █    ▄  █   █
@@ -100,7 +110,7 @@ if __name__ == '__main__':
 █▄▄▄▄▄▄▄█▄▄█ █▄▄█▄▄▄▄▄▄▄█▄▄▄█ █▄█▄▄▄▄▄▄▄█▄█  █▄▄█▄▄▄▄▄▄██▄▄█ █▄▄█▄▄▄█   █▄▄▄█''')
     if platform != 'linux':
         import Simulator.GridSimulator # Will add the routes for the simulator
-        data_parser = house_I.Simulated_House()
+        data_parser = house_I.Real_House()
     else:
         data_parser = house_I.Real_House() # if it is running on the pi we always want to do the real calls
 

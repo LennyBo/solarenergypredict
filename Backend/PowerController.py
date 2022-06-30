@@ -17,19 +17,7 @@ house_lat = 47.0142651
 house_lon = 7.0556118
 
 
-def get_sunrise_sunset():
-    global sunrise, sunset
-    try:
-        data = make_request('https://api.sunrise-sunset.org/json?lat=47.0142651&lng=7.0556118&formatted=0')['results']
-        sunrise = data['sunrise']
-        sunset = data['sunset']
-        
-        sunrise = datetime.fromisoformat(sunrise[:-6])
-        sunset = datetime.fromisoformat(sunset[:-6])
-        
-    except requests.exceptions.ConnectionError:
-        print('No connection to API')
-        return None, None
+
     
 
 def get_next_job_time(time, interval):
@@ -59,52 +47,6 @@ def log_power():
     
     return schedule.CancelJob
 
-
-
-def control_components():
-    print("Control components")
-    now = datetime.now()
-    
-    if  now > sunrise and now < sunset: # If it is day
-        try:
-            # Get current state of components
-            data = make_request('http://localhost:8080/house/power')['data']
-            heater_power = data['heater_power']
-            twc_power = data['twc_power']
-            heater_mode = data['heater_mode']
-            
-            twc_mode = data['twc_mode']
-            
-            
-            # Get current state of grid
-            grid_power = data['grid_power']
-            
-            # Decide what components to turn up/down
-            if grid_power < -1000: # We are buying power from the grid
-                # Turn components down
-                if heater_mode == 'overdrive': #and heater_power < 2000: # If the heater is currently running, it is not good practice to force stop it
-                    # Turn heater down
-                    print('Turning heater down')
-                    make_request('http://localhost:8080/house/heater?mode=normal')
-                elif twc_power > 1000: # Tesla is charging
-                    print('Stopping tesla charge') # Does not work so no request just for testing
-            elif grid_power + heater_power > 6000: # We are selling power to the grid
-                if heater_mode == 'normal':
-                    # Turn heater up
-                    print('Turning heater up')
-                    make_request('http://localhost:8080/house/heater?mode=overdrive')
-                elif twc_power < 1000: # Tesla is not charging
-                    print('Starting tesla charge')
-                
-        except requests.exceptions.ConnectionError:
-            print('No connection to API') # Since it is every minute we can just wait for the next job
-            
-    # elif now < sunrise and now > sunrise - timedelta(hours=1): # If we are close to sunrise
-    #     res = make_request('http://localhost:8080/house/energy')['data']
-    #     solar_prediction = res['solar_predicted']
-    #     if solar_prediction > 55000: # if Panels will produce power
-    #         print('Turning heater off until sunrise')
-    #         make_request('http://localhost:8080/house/heater?mode=off')
     
     
     
@@ -126,11 +68,7 @@ def run_power_logger():
 
     update_power_prediction_nextday()
     log_power()
-    get_sunrise_sunset()
-    control_components()
     schedule.every().day.at("20:00").do(update_power_prediction_nextday)
-    schedule.every().minute.do(control_components)
-    schedule.every().day.at("01:00").do(get_sunrise_sunset)
 
     print('Power logger started')
     while True:

@@ -80,19 +80,10 @@ def house_energy():
     #     print(e)
     #     return json.dumps({"status": "unknown error"})
 
-def update_power():
-    global power_data
-    power_data = data_parser.get_power()
 
 @get('/house/power')
 def house_power():
-    global power_data
-    
-    if power_data == None or datetime.now() - datetime.fromisoformat(power_data['time']) > timedelta(seconds=4):
-        update_power()
-    else:
-        pass # print('using cached data')
-    return json.dumps({"status": "ok", "data": power_data}).encode('utf-8')
+    return json.dumps({"status": "ok", "data": data_parser.get_power()}).encode('utf-8')
     
 
 @get('/ping')

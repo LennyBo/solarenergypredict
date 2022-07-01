@@ -69,16 +69,12 @@ def run_power_logger():
     update_power_prediction_nextday()
     log_power()
     schedule.every().day.at("20:00").do(update_power_prediction_nextday)
-    schedule.every().minute.do(control_components)
+    schedule.every(5).minutes.do(control_components)
 
     print('Power logger started')
     while True:
-        try:
-            schedule.run_pending()
-        except Exception as e:
-            easy_message(f'Script encoutered an error\n{e}') # Send error through telegram
-        finally:
-            time.sleep(1) # Every second, see if there is a job to run
+        schedule.run_pending()
+        time.sleep(1) # Every second, see if there is a job to run
 
 
 if __name__=='__main__':

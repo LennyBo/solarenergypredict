@@ -1,4 +1,3 @@
-from turtle import position
 import teslapy
 
 house_lat = 47.0142651
@@ -18,11 +17,17 @@ def start_charge_if_home():
         latest_data = tesla.get_latest_vehicle_data()
         position = (latest_data['drive_state']['latitude'], latest_data['drive_state']['longitude'])
         print(position)
-        if is_equal(position[0], house_lat) and is_equal(position[1], house_lon):
-            tesla.sync_wake_up()
-            # tesla.command('CHANGE_CHARGE_LIMIT', percent=90) # FIXME
-            tesla.command('START_CHARGE')
-            print("Charging to 90% Started")
+        if latest_data['charge_state']['battery_level'] < 90 and is_equal(position[0], house_lat) and is_equal(position[1], house_lon):
+            try:
+                tesla.sync_wake_up()
+                try:
+                    tesla.command('CHANGE_CHARGE_LIMIT', percent=90) # FIXME
+                except:
+                    pass # If the charge limit is already set to the value, this shitty lib raises an error, wtf
+                tesla.command('START_CHARGE')
+                print("Charging to 90% Started")
+            except teslapy.VehicleError as e:
+                print(f"Error starting charge : {e}")
     
 def stop_charge_if_home():
     with teslapy.Tesla('lenny.boegli@moosvolk.ch') as tesla:
@@ -36,9 +41,9 @@ def stop_charge_if_home():
             try:
                 tesla.sync_wake_up()
                 tesla.command('STOP_CHARGE')
-                print("Charging stopped")
-            except:
-                print("Error starting charge")
+                print("Stopped charge")
+            except teslapy.VehicleError as e:
+                print(f"Error stopping charge : {e}")
     
     
     # CHANGE_CHARGE_LIMIT

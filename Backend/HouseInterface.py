@@ -2,7 +2,7 @@ import sys
 sys.path.append( '.' ) # Adds parent directory so we can import other modules
 
 import numpy as np
-from datetime import datetime
+from datetime import datetime, timedelta
 from Tools.Shelly import heater_power, tesla_power
 from Tools.SolarEdgeModbus import CallModbus
 import requests
@@ -51,22 +51,37 @@ class Simulated_House(I_House_Controller):
 
 class Real_House(I_House_Controller):
    
+    
+    def __init__(self):
+        self.old_power = None
+        
     def get_power(self):
-            d = datetime.now().replace()
-            solar_edge = CallModbus()
-            tesla = tesla_power()
-            heater = heater_power()
-            di = {
-                'time':d.isoformat(),
-                'solar_power': solar_edge['solar'], 
-                'grid_power': solar_edge['grid'], 
-                'house_power': solar_edge['house'], 
-                'twc_power': tesla, 
-                'heater_power': heater,
-                'heater_mode': get_heater_mode(),
-                'twc_mode': 'Eco' #FIXME
-            }
-            return di
+        d = datetime.now()
+        
+        if self.old_power is not None and d - datetime.fromisoformat(self.old_power['time']) < timedelta(seconds=4):
+            print('using cached data')
+            return self.old_power
+        
+        solar_edge = CallModbus()
+        if solar_edge is None and d - datetime.fromisoformat(self.old_power['time']) < timedelta(seconds=60): # Inverter failed to respond
+            return self.old_power # If the cached data is not too old, send that one back
+        elif solar_edge is None: # Inverter failed to respond and last data point is older than 60 seconds
+            solar_edge = {'solar':0, 'grid':0, 'house':0}
+
+        tesla = tesla_power()
+        heater = heater_power()
+        di = {
+            'time':d.isoformat(),
+            'solar_power': solar_edge['solar'], 
+            'grid_power': solar_edge['grid'], 
+            'house_power': solar_edge['house'], 
+            'twc_power': tesla, 
+            'heater_power': heater,
+            'heater_mode': get_heater_mode(),
+            'twc_mode': 'Eco' #FIXME
+        }
+        self.old_power = di
+        return di
     
     def set_heater(self,state):
         if state == 'Off':

@@ -33,10 +33,10 @@ def printBaseLine(y, roundDecimal=2):
     print(f"\nMean y_test : {round(meanX[0][0],roundDecimal)}")
     print(f"Median y_test : {round(medianX[0],roundDecimal)}")
 
-    mae, mse = getBaselines(meanX, y)
-    print(f"Mean baseline: mae : {mae}, mse : {mse}")
-    mae, mse = getBaselines(medianX, y)
-    print(f"Median baseline: mae : {mae}, mse : {mse}")
+    # mae, mse = getBaselines(meanX, y)
+    # print(f"Mean baseline: mae : {mae}, mse : {mse}")
+    # mae, mse = getBaselines(medianX, y)
+    # print(f"Median baseline: mae : {mae}, mse : {mse}")
     mae, mse = getBaselines(shiftedX, shiftedY)
     print(f"Shifted baseline: mae : {mae}, mse : {mse}")
 
@@ -112,7 +112,7 @@ if __name__ == "__main__":
     model.add(Dense(100, activation="relu"))
     model.add(Dense(50, activation="relu"))
     model.add(layers.Dropout(0.2))
-    model.add(Dense(1))
+    model.add(Dense(4))
 
     model.compile(loss="mean_squared_error", optimizer="adam",
                   metrics=["mean_absolute_error"])
@@ -133,6 +133,7 @@ if __name__ == "__main__":
     )
 
     score = model.evaluate(X_test, y_test, verbose=0)
+    
 
     roundDecimal = 2
     print("\n\nTest results:")

@@ -79,11 +79,11 @@ def get_house_state():
 
 def heater_normal():
     print('Set heater normal')
-    make_request('http://localhost:8080/house/heater?mode=Normal')
+    make_request('http://localhost:8080/house/heater?mode=normal')
 
 def heater_overdrive():
     print('Set heater overdrive')
-    make_request('http://localhost:8080/house/heater?mode=Overdrive')
+    make_request('http://localhost:8080/house/heater?mode=overdrive')
 
 def tesla_start_charge():
     print('Start tesla charge')

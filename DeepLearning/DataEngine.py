@@ -68,8 +68,7 @@ def Preprocessing(df):
         # xTemp = np.concatenate((xTemp, xTemp,xTemp), axis=2) # Resnet needs 3 channels
         
         x.append(xTemp)
-        
-        y.append([sum(np.array(df["Ghi_NextDay"][x:x+6])) for x in range(i, i+forecastLength,6)]) # Add the sum ghi of the next day to y
+        y.append([sum(np.array(df["Ghi_NextDay"][i:i+forecastLength]))]) # Add the sum ghi of the next day to y
 
     return np.asarray(x), np.asarray(y)
 
@@ -121,7 +120,5 @@ if __name__ == "__main__":
         y_train[0:length - val_length],
         y_train[length - val_length:],
     )
-    
-    print(y.shape)
     
     print(f"Done splitting.\tTrain: {len(X_train)}\tVal: {len(X_val)}\tTest: {len(X_test)}\n")

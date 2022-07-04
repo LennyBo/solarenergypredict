@@ -39,10 +39,13 @@ model = keras.models.load_model('./models/VisualCrossing_LSTM_model.h5')
 # model = keras.models.load_model('models/400MaeModel.h5')
 y_pred = model.predict(x)  # Predicts sum Ghi of each date
 
+y_pred = [sum(x) for x in y_pred]
+y_calced = [sum(x) for x in y]
+
 print("calculating wh...")
 # Transforming the ghi to wh
-y_pred = [ghiToPower(y[0]) for y, d in zip(y_pred, dates)]  # Converts to power (wh)
-y_calced = [ghiToPower(y[0]) for y, d in zip(y, dates)]  # Converts to power (wh)
+y_pred = [ghiToPower(y) for y, d in zip(y_pred, dates)]  # Converts to power (wh)
+y_calced = [ghiToPower(y) for y, d in zip(y_calced, dates)]  # Converts to power (wh)
 
 print("plotting...")
 df_SolarEdge["date"] = [datetime.fromisoformat(s) for s in df_SolarEdge["date"]]

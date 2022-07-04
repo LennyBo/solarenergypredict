@@ -1,3 +1,4 @@
+from turtle import position
 import teslapy
 
 house_lat = 47.0142651
@@ -41,9 +42,9 @@ def stop_charge_if_home():
             try:
                 tesla.sync_wake_up()
                 tesla.command('STOP_CHARGE')
-                print("Stopped charge")
-            except teslapy.VehicleError as e:
-                print(f"Error stopping charge : {e}")
+                print("Charging stopped")
+            except:
+                print("Error starting charge")
     
     
     # CHANGE_CHARGE_LIMIT

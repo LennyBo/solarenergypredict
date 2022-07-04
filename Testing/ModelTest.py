@@ -35,8 +35,8 @@ x, y = Preprocessing(df_weather)
 
 
 print("predicting...")
-# model = keras.models.load_model('./models/VisualCrossing_LSTM_model.h5')
-model = keras.models.load_model('models/400MaeModel.h5')
+model = keras.models.load_model('./models/VisualCrossing_LSTM_model.h5')
+# model = keras.models.load_model('models/400MaeModel.h5')
 y_pred = model.predict(x)  # Predicts sum Ghi of each date
 
 print("calculating wh...")

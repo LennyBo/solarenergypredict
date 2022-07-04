@@ -11,18 +11,20 @@ def CallModbus():
             
             solarPower = round(inv.read("power_ac")["power_ac"] * 10 ** inv.read("power_ac_scale")["power_ac_scale"])
             gridPower = round(meter.read("power")["power"] * 10 ** meter.read("power_scale")["power_scale"])
+            
+            housePower = solarPower - gridPower
+            
+            inv.disconnect()
+            meter.disconnect()
+            
+            #print(f"Solar: {solarPower / 1000} kWh\tGrid: {gridPower / 1000} kWh\tHouse: {housePower / 1000} kWh")
+            
+            return {'solar':solarPower, 'grid':gridPower, 'house':housePower}
         except KeyError:
             print("Error keyerror")
             inv.disconnect()
             return None
-        housePower = solarPower - gridPower
         
-        inv.disconnect()
-        meter.disconnect()
-        
-        #print(f"Solar: {solarPower / 1000} kWh\tGrid: {gridPower / 1000} kWh\tHouse: {housePower / 1000} kWh")
-        
-        return {'solar':solarPower, 'grid':gridPower, 'house':housePower}
     else:
         print("Inverter unreachable")
         inv.disconnect()

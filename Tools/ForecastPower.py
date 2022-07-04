@@ -30,11 +30,12 @@ def forecast_power_output(df):
     interpreter.invoke()
     
     output_data = interpreter.get_tensor(interpreter.get_output_details()[0]['index'])
-
-    return [int(ghiToPower(x[0])) for x in output_data]
+    
+    return [[int(ghiToPower(x)) for x in p] for p in output_data]
     
 
 if __name__ == "__main__":
     predictions = forecast_power_output(get_weather_next_day())
     
     print(predictions)
+    print(sum(predictions[0]))

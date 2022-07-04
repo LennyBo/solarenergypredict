@@ -59,11 +59,15 @@ def house_energy():
             d = date.fromisoformat(d)
         
         energy = db.select_energy_day(d).to_dict()
-        if len(energy['date']) == 0: # Means it is in the future
+        if len(energy['date']) == 0: # Means it is in the future or not logged
             return json.dumps({"status": "error: No data for that day"})
         
         dict_ = {
             'solar_predicted': energy['solar_predicted'][0],
+            'solar_night_morning_predicted':energy['solar_night_morning_predicted'][0], 
+            'solar_morning_noon_predicted':energy['solar_morning_noon_predicted'][0], 
+            'solar_noon_evening_predicted':energy['solar_noon_evening_predicted'][0], 
+            'solar_evening_night_predicted':energy['solar_evening_night_predicted'][0], 
             'solar_energy': energy['solar_energy'][0],
             'grid_energy': energy['grid_energy'][0],
             'twc_energy': energy['twc_energy'][0],

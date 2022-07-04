@@ -1,6 +1,6 @@
 import sqlite3
 import pandas as pd
-from datetime import date,datetime
+from datetime import date,datetime,timedelta
 
 
 class DatabaseModule:
@@ -31,13 +31,15 @@ class DatabaseModule:
         db = sqlite3.connect(self.database_name)
         if 'solar_predicted' in data:
             db.execute(f'''REPLACE INTO DailyEnergy
-                    (date,solar_energy,solar_predicted,grid_energy, twc_energy, twc_green_precentage, heater_energy, heater_green_precentage, house_energy,house_green_precentage)
-                    VALUES ("{date_}",{data['solar_energy']},{data['solar_predicted']}, {data['grid_energy']},
+                    (date,solar_energy,solar_predicted,solar_night_morning_predicted,solar_morning_noon_predicted,solar_noon_evening_predicted,
+                    solar_evening_night_predicted,grid_energy, twc_energy, twc_green_precentage, heater_energy,
+                    heater_green_precentage, house_energy,house_green_precentage)
+                    VALUES ("{date_}",{data['solar_energy']},{data['solar_predicted']},{data['solar_night_morning_predicted']},
+                    {data['solar_morning_noon_predicted']},{data['solar_noon_evening_predicted']},{data['solar_evening_night_predicted']},{data['grid_energy']},
                     {data['twc_energy']}, {data['twc_green_precentage']},
                     {data['heater_energy']}, {data['heater_green_precentage']},
                     {data['house_energy']}, {data['house_green_precentage']}
-                    )'''
-                    )
+                    )''')
         else:
             db.execute(f'''REPLACE INTO DailyEnergy
                     (date,solar_energy,grid_energy, twc_energy, twc_green_precentage, heater_energy, heater_green_precentage, house_energy,house_green_precentage)
@@ -45,8 +47,7 @@ class DatabaseModule:
                     {data['twc_energy']}, {data['twc_green_precentage']},
                     {data['heater_energy']}, {data['heater_green_precentage']},
                     {data['house_energy']}, {data['house_green_precentage']}
-                    )'''
-                    )
+                    )''')
         db.commit()
         db.close()
     
@@ -111,7 +112,9 @@ class DatabaseModule:
 database = DatabaseModule('data/SolarDatabase.db',False) # to import
 
 if __name__ == '__main__':
-    df = database.select_power_day(date.today())
+    db = sqlite3.connect('data/SolarDatabase.db')
+    
+    df = database.select_energy_day(date_=date.today() + timedelta(days=1))
     print(date)
     print(df)
 

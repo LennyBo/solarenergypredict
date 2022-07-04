@@ -33,10 +33,10 @@ def printBaseLine(y, roundDecimal=2):
     print(f"\nMean y_test : {round(meanX[0][0],roundDecimal)}")
     print(f"Median y_test : {round(medianX[0],roundDecimal)}")
 
-    mae, mse = getBaselines(meanX, y)
-    print(f"Mean baseline: mae : {mae}, mse : {mse}")
-    mae, mse = getBaselines(medianX, y)
-    print(f"Median baseline: mae : {mae}, mse : {mse}")
+    # mae, mse = getBaselines(meanX, y)
+    # print(f"Mean baseline: mae : {mae}, mse : {mse}")
+    # mae, mse = getBaselines(medianX, y)
+    # print(f"Median baseline: mae : {mae}, mse : {mse}")
     mae, mse = getBaselines(shiftedX, shiftedY)
     print(f"Shifted baseline: mae : {mae}, mse : {mse}")
 
@@ -68,7 +68,7 @@ if __name__ == "__main__":
     TEST_SIZE = 0.16 # Precent
     VAL_SIZE = 360 # Days
     SAVE_MODEL = True
-    SAVE_FILE = "./models/VisualCrossing_LSTM_model.h5"
+    SAVE_FILE = "./models/VisualCrossing_LSTM_model_splited_day.h5"
     
     
     print("Loading dataset...")
@@ -112,7 +112,9 @@ if __name__ == "__main__":
     model.add(Dense(100, activation="relu"))
     model.add(Dense(50, activation="relu"))
     model.add(layers.Dropout(0.2))
-    model.add(Dense(1))
+    model.add(Dense(y.shape[1]))
+    
+    print(y.shape)
 
     model.compile(loss="mean_squared_error", optimizer="adam",
                   metrics=["mean_absolute_error"])
@@ -133,6 +135,7 @@ if __name__ == "__main__":
     )
 
     score = model.evaluate(X_test, y_test, verbose=0)
+    
 
     roundDecimal = 2
     print("\n\nTest results:")

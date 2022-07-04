@@ -54,12 +54,16 @@ def log_power():
 def update_power_prediction_nextday():
     # TODO Handle exceptions
     #Insert prediction for tomorrow
+    #solar_night_morning_predicted,solar_morning_noon_predicted,solar_noon_evening_predicted,solar_evening_night_predicted
     prediction = forecast_power_output(get_weather_next_day())[0]
-    db.insert_energy_day({'solar_energy':0,'solar_predicted':prediction,'grid_energy':0,'twc_energy':0,
-                            'twc_green_precentage':0,'heater_energy':0,
-                            'heater_green_precentage':0,'house_energy':0,
-                            'house_green_precentage':0},
-                           date.today() + timedelta(days=1))
+    db.insert_energy_day({'solar_energy':0,'solar_predicted':sum(prediction),
+                          'solar_night_morning_predicted':prediction[0], 'solar_morning_noon_predicted':prediction[1],
+                          'solar_noon_evening_predicted':prediction[2], 'solar_evening_night_predicted':prediction[3],
+                          'grid_energy':0,'twc_energy':0,
+                          'twc_green_precentage':0,'heater_energy':0,
+                          'heater_green_precentage':0,'house_energy':0,
+                          'house_green_precentage':0},
+                          date.today() + timedelta(days=1))
     
 
 def run_power_logger():

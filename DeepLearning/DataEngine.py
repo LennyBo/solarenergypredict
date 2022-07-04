@@ -36,7 +36,7 @@ def JoinSolcastVC(df_weather, df_solar):
 
     return df_weather
 
-def Preprocessing(df):
+def Preprocessing(df,hour_split=6): # hour_split = 0-6 7-12 13-18 19-24
     # 24 hours each day (we could slice just the day part but it does not improve the model and makes everything more complicated)
     forecastLength = 24
     # If datetime is the index, we need to move it back into the set
@@ -68,7 +68,8 @@ def Preprocessing(df):
         # xTemp = np.concatenate((xTemp, xTemp,xTemp), axis=2) # Resnet needs 3 channels
         
         x.append(xTemp)
-        y.append([sum(np.array(df["Ghi_NextDay"][i:i+forecastLength]))]) # Add the sum ghi of the next day to y
+        
+        y.append([sum(np.array(df["Ghi_NextDay"][x:x+hour_split])) for x in range(i, i+forecastLength,hour_split)]) # Add the sum ghi of the next day to y
 
     return np.asarray(x), np.asarray(y)
 
@@ -120,5 +121,7 @@ if __name__ == "__main__":
         y_train[0:length - val_length],
         y_train[length - val_length:],
     )
+    
+    print(y.shape)
     
     print(f"Done splitting.\tTrain: {len(X_train)}\tVal: {len(X_val)}\tTest: {len(X_test)}\n")

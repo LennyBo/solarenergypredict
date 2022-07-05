@@ -100,12 +100,13 @@ class TeslaWallChargerWidget (UpdateingWidget):
         super().__init__(column,'WebServer/images/tesla_logo.png')
         
     def init(self):
-        self.txtMode = self.column.empty()
+        self.radioMode = self.column.radio(label="Mode",options=["Smart Grid","Manual"],index=['Smart Grid','Manual'].index(currentData["twc_mode"]),on_change=self.mode_change)
         self.txtCurrentPower = self.column.empty()
-        
+    
+    def mode_change(self):
+        make_request('http://localhost:8080/house/tesla')
+            
     def update(self):
-        
-        self.txtMode.metric(label="Mode",value=f'{currentData["twc_mode"]}')
         self.txtCurrentPower.metric(label="Power",value=f'{currentData["twc_power"]} kw',
                                     delta=round(currentData["twc_power"] - pastData["twc_power"],1))
         return super().update()

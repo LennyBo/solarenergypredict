@@ -36,6 +36,7 @@ class Simulated_House(I_House_Controller):
         d = datetime.now().replace(second=0, microsecond=0)
         data = self.call_simulator()
         data['time'] = d.isoformat()
+        data['twc_mode'] = 'Manual'
         # print(data)
         return data
     
@@ -78,7 +79,7 @@ class Real_House(I_House_Controller):
             'twc_power': tesla, 
             'heater_power': heater,
             'heater_mode': get_heater_mode(),
-            'twc_mode': 'Eco' #FIXME
+            'twc_mode': 'Manual' #FIXME
         }
         self.old_power = di
         return di
@@ -109,7 +110,7 @@ class Random_Values(I_House_Controller):
             'twc_power': get_rnd_value(), 
             'heater_power': get_rnd_value(),
             'heater_mode': 'Overdrive',
-            'twc_mode': 'Eco'
+            'twc_mode': 'Manual'
         }
         return di
 

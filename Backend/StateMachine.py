@@ -26,7 +26,6 @@ def get_sunrise_sunset():
 
 def control_components():
     print("Control components")
-    
     is_heater_on,heater_mode, is_charging_tesla, is_tesla_home,grid_power = get_house_state()
     
     if not is_heater_on and heater_mode == 'Normal' and not is_charging_tesla: # heater off / normal / tesla not charging

@@ -106,9 +106,9 @@ if __name__ == '__main__':
     else:
         data_parser = house_I.Real_House() # if it is running on the pi we always want to do the real calls
 
-    # thread_controller = Process(target=run_power_logger)
-    # thread_controller.daemon = True
-    # thread_controller.start()
+    thread_controller = Process(target=run_power_logger)
+    thread_controller.daemon = True
+    thread_controller.start()
     
     run(host='localhost', port=8080, debug=False,server='cheroot')
 

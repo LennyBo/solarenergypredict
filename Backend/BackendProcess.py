@@ -100,14 +100,15 @@ if __name__ == '__main__':
 █ █▄█   █   ▄   █    █▄▄█    ▄  █   █▄▄▄█ █ █   █       █   ▄   █   █   █   █
 █▄▄▄▄▄▄▄█▄▄█ █▄▄█▄▄▄▄▄▄▄█▄▄▄█ █▄█▄▄▄▄▄▄▄█▄█  █▄▄█▄▄▄▄▄▄██▄▄█ █▄▄█▄▄▄█   █▄▄▄█''')
     if platform != 'linux':
-        import Simulator.GridSimulator # Will add the routes for the simulator
-        data_parser = house_I.Simulated_House()
+        #import Simulator.GridSimulator # Will add the routes for the simulator
+        data_parser = house_I.Real_House()
+        # data_parser = house_I.Simulated_House()
     else:
         data_parser = house_I.Real_House() # if it is running on the pi we always want to do the real calls
 
-    thread_controller = Process(target=run_power_logger)
-    thread_controller.daemon = True
-    thread_controller.start()
+    # thread_controller = Process(target=run_power_logger)
+    # thread_controller.daemon = True
+    # thread_controller.start()
     
     run(host='localhost', port=8080, debug=False,server='cheroot')
 

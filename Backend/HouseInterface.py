@@ -70,6 +70,13 @@ class Real_House(I_House_Controller):
 
         tesla = tesla_power()
         heater = heater_power()
+        heater_mode = get_heater_mode()
+        
+        if heater_mode is None and d - datetime.fromisoformat(self.old_power['time']) < timedelta(seconds=60):
+            heater_mode = self.old_power['heater_mode']
+        elif heater_mode is None:
+            heater_mode = 'Off'
+        
         di = {
             'time':d.isoformat(),
             'solar_power': solar_edge['solar'], 
@@ -77,7 +84,7 @@ class Real_House(I_House_Controller):
             'house_power': solar_edge['house'], 
             'twc_power': tesla, 
             'heater_power': heater,
-            'heater_mode': get_heater_mode(),
+            'heater_mode': heater_mode,
             'twc_mode': 'Eco' #FIXME
         }
         self.old_power = di

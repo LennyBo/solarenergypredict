@@ -32,19 +32,22 @@ def set_heater_switch(bits):
     make_request(f'http://{SHELLY_IP_TESLA}/relay/0?turn={bit2}')
 
 def get_heater_mode():
-    bit1 = make_request(f'http://{SHELLY_IP_HEATER}/relay/0')['ison']
-    bit2 = make_request(f'http://{SHELLY_IP_TESLA}/relay/0')['ison']
-    
-    if bit1 == True and bit2 == True:
-        return 'Overdrive'
-    elif bit1 == True and bit2 == False:
-        return 'Eco'
-    elif bit1 == False and bit2 == True:
-        return 'Normal'
-    elif bit1 == False and bit2 == False:
-        return 'Off'
-    
-    return (bit1,bit2)
+    try:
+        bit1 = make_request(f'http://{SHELLY_IP_HEATER}/relay/0')['ison']
+        bit2 = make_request(f'http://{SHELLY_IP_TESLA}/relay/0')['ison']
+        
+        if bit1 == True and bit2 == True:
+            return 'Overdrive'
+        elif bit1 == True and bit2 == False:
+            return 'Eco'
+        elif bit1 == False and bit2 == True:
+            return 'Normal'
+        elif bit1 == False and bit2 == False:
+            return 'Off'
+        
+        return (bit1,bit2)
+    except requests.exceptions.ConnectionError:
+        return None
 
 def set_heater_off():
     set_heater_switch([False,True])

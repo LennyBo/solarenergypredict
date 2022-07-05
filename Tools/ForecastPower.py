@@ -36,5 +36,4 @@ def forecast_power_output(df):
 
 if __name__ == "__main__":
     predictions = forecast_power_output(get_weather_next_day())
-    
     print(predictions)

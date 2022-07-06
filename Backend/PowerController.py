@@ -14,12 +14,6 @@ from StateMachine import control_components
 
 every = 1 # minutes
 
-house_lat = 47.0142651
-house_lon = 7.0556118
-
-
-
-    
 
 def get_next_job_time(time, interval):
     next_job_time = time.replace(second=0, microsecond=0)
@@ -70,7 +64,7 @@ def run_power_logger():
     global db
     db = DatabaseModule('data/SolarDatabase.db',False)
 
-    update_power_prediction_nextday()
+    # update_power_prediction_nextday()
     log_power()
     schedule.every().day.at("20:00").do(update_power_prediction_nextday)
     schedule.every(5).minutes.do(control_components)

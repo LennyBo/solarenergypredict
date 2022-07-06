@@ -34,7 +34,7 @@ def log_power():
         data['time'] = datetime.now().replace(second=0, microsecond=0).isoformat() # Even if the request wasn't exactly at that time, we move it to it
         db.insert_power_data(data)
 
-        df = db.select_power_day(date.today())
+        # df = db.select_power_day(date.today())
 
         # print(df)
         

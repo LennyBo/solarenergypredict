@@ -48,7 +48,16 @@ def house_components():
     else:
         return json.dumps({"status": "error expected state: Overdrive, Normal, Off"})
     
-
+@get('/house/twc')
+def house_components():
+    state = request.query.mode
+    print(state)
+    if state in ['Smart Grid', 'Manual']:
+        data_parser.set_twc_mode(state)
+        return json.dumps({"status": "ok"})
+    else:
+        return json.dumps({"status": "error expected state: 'Smart Grid', 'Manual'"})
+    
 @get('/house/energy')
 def house_energy():
     try:

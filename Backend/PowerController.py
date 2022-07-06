@@ -64,7 +64,7 @@ def run_power_logger():
     global db
     db = DatabaseModule('data/SolarDatabase.db',False)
 
-    # update_power_prediction_nextday()
+    update_power_prediction_nextday()
     log_power()
     schedule.every().day.at("20:00").do(update_power_prediction_nextday)
     schedule.every(5).minutes.do(control_components)

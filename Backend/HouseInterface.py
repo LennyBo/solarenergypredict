@@ -1,4 +1,5 @@
 import sys
+from xml.etree.ElementTree import QName
 sys.path.append( '.' ) # Adds parent directory so we can import other modules
 
 import numpy as np
@@ -9,6 +10,7 @@ import requests
 import pandas as pd
 from Tools.ApiRequest import make_request
 from Tools.Shelly import set_heater_off, set_heater_eco, set_heater_normal, set_heater_overdrive,get_heater_mode
+from DatabaseModule import database as db
 
 
 def get_rnd_value():
@@ -17,7 +19,7 @@ def get_rnd_value():
 class I_House_Controller:
     
     def __init__(self):
-        pass
+        self.twc_mode = 'Smart Grid'
     
     def get_power(self):
         pass
@@ -27,15 +29,20 @@ class I_House_Controller:
     
     def set_heater(self,state):
         pass
+    
+    def set_twc_mode(self,state):
+        self.twc_mode = state
+        
 
 class Simulated_House(I_House_Controller):
     def __init__(self):
-        pass
+        super().__init__()
     
     def get_power(self):
         d = datetime.now().replace(second=0, microsecond=0)
         data = self.call_simulator()
         data['time'] = d.isoformat()
+        data['twc_mode'] = self.twc_mode
         # print(data)
         return data
     
@@ -53,6 +60,7 @@ class Real_House(I_House_Controller):
    
     
     def __init__(self):
+        super().__init__()
         self.old_power = None
         
     def get_power(self):
@@ -85,7 +93,7 @@ class Real_House(I_House_Controller):
             'twc_power': tesla, 
             'heater_power': heater,
             'heater_mode': heater_mode,
-            'twc_mode': 'Eco' #FIXME
+            'twc_mode': self.twc_mode
         }
         self.old_power = di
         return di
@@ -104,7 +112,7 @@ class Real_House(I_House_Controller):
 class Random_Values(I_House_Controller):
     
     def __init__(self):
-        pass
+        super().__init__()
     
     def get_power():
         d = datetime.now().replace(second=0, microsecond=0)
@@ -116,7 +124,7 @@ class Random_Values(I_House_Controller):
             'twc_power': get_rnd_value(), 
             'heater_power': get_rnd_value(),
             'heater_mode': 'Overdrive',
-            'twc_mode': 'Eco'
+            'twc_mode': 'Manual'
         }
         return di
 

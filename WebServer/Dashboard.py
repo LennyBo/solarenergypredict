@@ -97,15 +97,18 @@ class HeaterWidget (UpdateingWidget):
 class TeslaWallChargerWidget (UpdateingWidget):
     
     def __init__(self, column):
+        self.modes_available = ['Smart Grid','Manual']
         super().__init__(column,'WebServer/images/tesla_logo.png')
         
     def init(self):
-        self.txtMode = self.column.empty()
+        self.radioMode = self.column.radio(label="Mode",options=self.modes_available,index=self.modes_available.index(currentData["twc_mode"]),on_change=self.mode_change)
         self.txtCurrentPower = self.column.empty()
-        
+    
+    def mode_change(self):
+        new_mode = self.modes_available[(self.modes_available.index(self.radioMode) + 1) % 2] # Radio is not updated when the event is called so we invert it
+        make_request(f'http://localhost:8080/house/twc?mode={new_mode}')
+            
     def update(self):
-        
-        self.txtMode.metric(label="Mode",value=f'{currentData["twc_mode"]}')
         self.txtCurrentPower.metric(label="Power",value=f'{currentData["twc_power"]} kw',
                                     delta=round(currentData["twc_power"] - pastData["twc_power"],1))
         return super().update()

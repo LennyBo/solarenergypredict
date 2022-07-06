@@ -26,41 +26,40 @@ def get_sunrise_sunset():
 
 def control_components():
     print("Control components")
-    
-    is_heater_on,heater_mode, is_charging_tesla, is_tesla_home,grid_power = get_house_state()
+    is_heater_on,heater_mode, is_charging_tesla, is_tesla_home,grid_power,is_tesla_smart = get_house_state()
     
     if not is_heater_on and heater_mode == 'Normal' and not is_charging_tesla: # heater off / normal / tesla not charging
         if grid_power > heater_on_power:
             heater_overdrive()
     elif not is_heater_on and heater_mode == 'Overdrive' and not is_charging_tesla: # Heater off / overdrive / tesla not charging
-        if grid_power > min_tesla_on_power and is_tesla_home:
+        if grid_power > min_tesla_on_power and is_tesla_home and is_tesla_smart:
             tesla_start_charge()
         if grid_power < 6000:
             heater_normal()
     elif is_heater_on and heater_mode == 'Normal' and not is_charging_tesla: # Heater on / normal / tesla not charging
-        if grid_power > min_tesla_on_power and is_tesla_home:
+        if grid_power > min_tesla_on_power and is_tesla_home and is_tesla_smart:
             tesla_start_charge()
         if grid_power > 100:
             heater_overdrive()
     elif is_heater_on and heater_mode == 'Overdrive' and not is_charging_tesla: # Heater on / overdrive / tesla not charging
-        if grid_power > min_tesla_on_power and is_tesla_home:
+        if grid_power > min_tesla_on_power and is_tesla_home and is_tesla_smart:
             tesla_start_charge()
     elif not is_heater_on and heater_mode == 'Normal' and is_charging_tesla:
         if grid_power > heater_on_power:
             heater_overdrive()
-        elif grid_power < -2000: # Not enough sun to charge the tesla TODO check if tesla mode is boost (meaning we overide this rule)
+        elif grid_power < -2000 and is_tesla_smart: # Not enough sun to charge the tesla TODO check if tesla mode is boost (meaning we overide this rule)
             tesla_stop_charge()
     elif not is_heater_on and heater_mode == 'Overdrive' and is_charging_tesla:
-        if grid_power < -2000:
+        if grid_power < -2000 and is_tesla_smart:
             tesla_stop_charge()
             heater_normal()
     elif is_heater_on and heater_mode == 'Normal' and is_charging_tesla:
         if grid_power > 1000:
             heater_overdrive()
-        elif grid_power < -2000:
+        elif grid_power < -2000 and is_tesla_smart:
             tesla_stop_charge()
     elif is_heater_on and heater_mode == 'Overdrive' and is_charging_tesla:
-        if grid_power < -2000:
+        if grid_power < -2000 and is_tesla_smart:
             tesla_stop_charge()
     
         
@@ -73,7 +72,8 @@ def get_house_state():
     is_heater_on = data['heater_power'] > 1000 # Heater hovers around 6kw when running
     is_tesla_home = True # Will do a request to the tesla API or maybe just the backend api that will not spam the api TODO
     grid_power = data['grid_power']
-    return is_heater_on,heater_mode, is_charging_tesla, is_tesla_home,grid_power
+    is_tesla_smart = data['twc_mode'] == 'Smart Grid'
+    return is_heater_on,heater_mode, is_charging_tesla, is_tesla_home,grid_power,is_tesla_smart
     
     
 

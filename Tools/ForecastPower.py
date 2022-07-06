@@ -19,7 +19,7 @@ def forecast_power_output(df):
     
     x = np.float32(x)
     
-    TFLITE_FILE_PATH = './models/VisualCrossing_LSTM_model.h5.tflite'
+    TFLITE_FILE_PATH = './models/VisualCrossing_LSTM_model_splited_day.h5.tflite'
     # Load the TFLite model in TFLite Interpreter
     interpreter = tflite.Interpreter(model_path=TFLITE_FILE_PATH)
     input_data = x
@@ -30,8 +30,8 @@ def forecast_power_output(df):
     interpreter.invoke()
     
     output_data = interpreter.get_tensor(interpreter.get_output_details()[0]['index'])
-
-    return [int(ghiToPower(x[0])) for x in output_data]
+    
+    return [[int(ghiToPower(x)) for x in p] for p in output_data]
     
 
 if __name__ == "__main__":

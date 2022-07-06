@@ -21,7 +21,7 @@ def start_charge_if_home():
             try:
                 tesla.sync_wake_up()
                 try:
-                    tesla.command('CHANGE_CHARGE_LIMIT', percent=90) # FIXME
+                    tesla.command('CHANGE_CHARGE_LIMIT', percent=90)
                 except:
                     pass # If the charge limit is already set to the value, this shitty lib raises an error, wtf
                 tesla.command('START_CHARGE')
@@ -40,6 +40,10 @@ def stop_charge_if_home():
         if is_equal(position[0], house_lat) and is_equal(position[1], house_lon):
             try:
                 tesla.sync_wake_up()
+                try:
+                    tesla.command('CHANGE_CHARGE_LIMIT', percent=60)
+                except:
+                    pass # If the charge limit is already set to the value, this shitty lib raises an error, wtf
                 tesla.command('STOP_CHARGE')
                 print("Stopped charge")
             except teslapy.VehicleError as e:

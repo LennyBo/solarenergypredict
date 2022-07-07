@@ -2,12 +2,11 @@ import sys
 sys.path.append( '.' ) # Adds parent directory so we can import other modules
 import streamlit as st
 import time
-import numpy as np
 from PIL import Image
-import requests
 from datetime import datetime,date, timedelta
 import pandas as pd
 from Tools.ApiRequest import make_request
+from scipy.signal import butter,filtfilt
 
 st.set_page_config(layout="wide") # Needs to be the first st command
 
@@ -148,6 +147,12 @@ def to_kilo(v):
         return v
     return round(v / 1000,1)
 
+def low_pass_filter(x,A):
+    y = [x[0]]
+    for n in range(1,len(x)):
+        y.append(y[n - 1] + (x[n] - y[n - 1]) / A)
+        y[-1] = 0 if y[-1] < 0 else y[-1]
+    return y
 
 date_ = get_date() # Get the date to fetch data for
 currentData = apiUpdate() # Initialize with the current values
@@ -206,6 +211,9 @@ df = df.rename(columns={"heater_power":"2_Heater","twc_power":"1_Tesla","house_p
 # so we need to sort them manually
 df = df.rename(columns={"heater_green":"2_House_green","heater_red":"1_House_red","export":"0_Export"})
 
+for col in df.columns:
+    df[col] = low_pass_filter(df[col].tolist(),2)
+
 colors = ['#00ff00','#ff1803','#e4852b','#0000ff']
 
 import altair as alt
@@ -233,6 +241,7 @@ colPrev,_,colNext = st.columns(3)
 colPrev.write(f"<a href='?date={(date_ - timedelta(days=1)).strftime('%Y-%m-%d')}' target='_self'><-</a>", unsafe_allow_html=True)
 colNext.write(f"<a href='?date={(date_ + timedelta(days=1)).strftime('%Y-%m-%d')}' target='_self'>-></a>", unsafe_allow_html=True)
 
+
 chart = (
     alt.Chart(data)
     .mark_area(opacity=0.6)
@@ -250,4 +259,3 @@ while True:
     currentData = apiUpdate()
     wc.update_all()
     time.sleep(5)
-

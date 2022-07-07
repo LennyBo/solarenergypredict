@@ -17,7 +17,7 @@ def start_charge_if_home():
         latest_data = tesla.get_latest_vehicle_data()
         position = (latest_data['drive_state']['latitude'], latest_data['drive_state']['longitude'])
         print(position)
-        if latest_data['charge_state']['battery_level'] < 90 and is_equal(position[0], house_lat) and is_equal(position[1], house_lon):
+        if latest_data['charge_state']['battery_level'] < 85 and is_equal(position[0], house_lat) and is_equal(position[1], house_lon):
             try:
                 tesla.sync_wake_up()
                 try:

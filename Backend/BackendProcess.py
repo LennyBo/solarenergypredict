@@ -42,11 +42,11 @@ def daily():
 def house_components():
     state = request.query.mode
     print(state)
-    if state in ['Overdrive', 'Normal', 'Off']:
+    if state in ['Overdrive', 'Normal', 'Off', 'Eco']:
         data_parser.set_heater(state)
         return json.dumps({"status": "ok"})
     else:
-        return json.dumps({"status": "error expected state: Overdrive, Normal, Off"})
+        return json.dumps({"status": "error expected state: Overdrive, Normal, Off, Eco"})
     
 @get('/house/twc')
 def house_components():

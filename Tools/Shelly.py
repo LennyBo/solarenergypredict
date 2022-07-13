@@ -39,11 +39,11 @@ def get_heater_mode():
         if bit1 == True and bit2 == True:
             return 'Overdrive'
         elif bit1 == True and bit2 == False:
-            return 'Eco'
+            return 'Off'
         elif bit1 == False and bit2 == True:
             return 'Normal'
         elif bit1 == False and bit2 == False:
-            return 'Off'
+            return 'Eco'
         
         return (bit1,bit2)
     except requests.exceptions.ConnectionError:
@@ -62,10 +62,7 @@ def set_heater_overdrive():
     set_heater_switch([True,True])
 
 if __name__ == "__main__":
-    print(heater_power())
-    print(tesla_power())
-    
-    print(get_heater_mode())
+    set_heater_eco()
     
     
 

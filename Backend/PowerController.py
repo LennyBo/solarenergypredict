@@ -8,7 +8,6 @@ from Tools.VisualCrossingApi import get_weather_next_day
 from Tools.ForecastPower import forecast_power_output
 import requests
 from datetime import date
-from Tools.Telegram import easy_message
 from Tools.ApiRequest import make_request
 from StateMachine import control_components
 

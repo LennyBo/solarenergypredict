@@ -1,13 +1,11 @@
-from platform import platform
-from sre_parse import State
 import sys
 sys.path.append( '.' ) # Adds parent directory so we can import other modules
 
+from platform import platform
 import json
 from sys import platform
-from bottle import run, post, request, response,get
-from datetime import date,datetime,timedelta
-import numpy as np
+from bottle import run, request,get
+from datetime import date
 from Backend.DatabaseModule import database as db
 import HouseInterface as house_I
 from multiprocessing import Process

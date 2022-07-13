@@ -68,7 +68,7 @@ def run_power_logger():
     global db
     db = DatabaseModule('data/SolarDatabase.db',False)
 
-    one_shot_night_routine() # Only for development
+    # one_shot_night_routine() # Only for development
     log_power()
     schedule.every().day.at("23:00").do(one_shot_night_routine)
     schedule.every(5).minutes.do(control_components)

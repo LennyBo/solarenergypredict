@@ -58,7 +58,7 @@ def one_shot_night_routine():
                           date.today() + timedelta(days=1))
     
     # Decide if we do something
-    if prediction[1] > 20000: # If we have less than 20kW of power in the morning
+    if prediction[1] < 20000: # If we have less than 20kW of power in the morning
         print('Set heater overdrive until morning')
         make_request('http://localhost:8080/house/heater?mode=Overdrive')
         

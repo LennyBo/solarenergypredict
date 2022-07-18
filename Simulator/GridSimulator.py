@@ -1,6 +1,6 @@
 import sys
 sys.path.append( '.' ) # Adds parent directory so we can import other modules
-from bottle import run, post, request, response,get
+from bottle import request, get
 from datetime import datetime, date
 from Backend.DatabaseModule import database as db
 import json

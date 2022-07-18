@@ -6,11 +6,8 @@ import numpy as np
 from datetime import datetime, timedelta
 from Tools.Shelly import heater_power, tesla_power
 from Tools.SolarEdgeModbus import CallModbus
-import requests
-import pandas as pd
 from Tools.ApiRequest import make_request
 from Tools.Shelly import set_heater_off, set_heater_eco, set_heater_normal, set_heater_overdrive,get_heater_mode
-from DatabaseModule import database as db
 
 
 def get_rnd_value():

@@ -8,7 +8,6 @@ from Tools.VisualCrossingApi import get_weather_next_day
 from Tools.ForecastPower import forecast_power_output
 import requests
 from datetime import date
-from Tools.Telegram import easy_message
 from Tools.ApiRequest import make_request
 from StateMachine import control_components
 
@@ -45,10 +44,8 @@ def log_power():
     
     
     
-def update_power_prediction_nextday():
-    # TODO Handle exceptions
+def one_shot_night_routine():
     #Insert prediction for tomorrow
-    #solar_night_morning_predicted,solar_morning_noon_predicted,solar_noon_evening_predicted,solar_evening_night_predicted
     prediction = forecast_power_output(get_weather_next_day())[0]
     db.insert_energy_day({'solar_energy':0,'solar_predicted':sum(prediction),
                           'solar_night_morning_predicted':prediction[0], 'solar_morning_noon_predicted':prediction[1],
@@ -59,14 +56,20 @@ def update_power_prediction_nextday():
                           'house_green_precentage':0},
                           date.today() + timedelta(days=1))
     
+    # Decide if we do something
+    if prediction[1] < 20000: # If we have less than 20kW of power in the morning
+        print('Set heater overdrive until morning')
+        make_request('http://localhost:8080/house/heater?mode=Overdrive')
+        
+    
 
 def run_power_logger():
     global db
     db = DatabaseModule('data/SolarDatabase.db',False)
 
-    update_power_prediction_nextday()
+    # one_shot_night_routine() # Only for development
     log_power()
-    schedule.every().day.at("20:00").do(update_power_prediction_nextday)
+    schedule.every().day.at("23:00").do(one_shot_night_routine)
     schedule.every(5).minutes.do(control_components)
 
     print('Power logger started')

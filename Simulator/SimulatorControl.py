@@ -1,4 +1,3 @@
-from sklearn.datasets import make_regression
 import sys
 sys.path.append( '.' ) # Adds parent directory so we can import other modules
 import streamlit as st

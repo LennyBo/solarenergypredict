@@ -6,7 +6,6 @@ from PIL import Image
 from datetime import datetime,date, timedelta
 import pandas as pd
 from Tools.ApiRequest import make_request
-from scipy.signal import butter,filtfilt
 
 st.set_page_config(layout="wide") # Needs to be the first st command
 
@@ -150,7 +149,7 @@ def to_kilo(v):
 def low_pass_filter(x,A):
     y = [x[0]]
     for n in range(1,len(x)):
-        y.append(y[n - 1] + (x[n] - y[n - 1]) / A)
+        y.append(x[n])
         y[-1] = 0 if y[-1] < 0 else y[-1]
     return y
 

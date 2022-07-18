@@ -12,6 +12,8 @@ secret.py
 tmp/
 models/
 data/*.db
+model.png
+temp.py
 
 # C extensions
 *.so

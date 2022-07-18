@@ -1,13 +1,11 @@
-from platform import platform
-from sre_parse import State
 import sys
 sys.path.append( '.' ) # Adds parent directory so we can import other modules
 
+from platform import platform
 import json
 from sys import platform
-from bottle import run, post, request, response,get
-from datetime import date,datetime,timedelta
-import numpy as np
+from bottle import run, request,get
+from datetime import date
 from Backend.DatabaseModule import database as db
 import HouseInterface as house_I
 from multiprocessing import Process
@@ -42,11 +40,11 @@ def daily():
 def house_components():
     state = request.query.mode
     print(state)
-    if state in ['Overdrive', 'Normal', 'Off']:
+    if state in ['Overdrive', 'Normal', 'Off', 'Eco']:
         data_parser.set_heater(state)
         return json.dumps({"status": "ok"})
     else:
-        return json.dumps({"status": "error expected state: Overdrive, Normal, Off"})
+        return json.dumps({"status": "error expected state: Overdrive, Normal, Off, Eco"})
     
 @get('/house/twc')
 def house_components():

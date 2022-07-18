@@ -1,5 +1,4 @@
 import requests
-from datetime import datetime
 
 def make_request(url, method='GET', data=None):
     if method == 'GET':

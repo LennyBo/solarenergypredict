@@ -1,7 +1,8 @@
+import sys
+sys.path.append( '.' ) # Adds parent directory so we can import other modules
 import solaredge_modbus as smdb
+from secret import solar_edge_ip, solar_edge_port
 
-solar_edge_ip = "192.168.0.27"
-solar_edge_port = 1502
 
 def CallModbus():
     inv = smdb.Inverter(host=solar_edge_ip,port=solar_edge_port)

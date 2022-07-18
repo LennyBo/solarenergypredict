@@ -40,20 +40,5 @@ def jsonToDF(j):
     return df
 
 
-def exampleResponse(fileName):
-    data = []
-    with open(fileName) as f:
-        data.append(json.load(f))
-
-    return jsonToDF(data[0])
 
 
-if __name__ == "__main__":
-    fileName = "exampleRequest.json"
-    data = []
-    with open(fileName) as f:
-        data.append(json.load(f))
-
-    df = get_weather_next_day()
-    print(df)
-    # print(data)

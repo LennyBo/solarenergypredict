@@ -2,8 +2,7 @@ import sys
 sys.path.append( '.' ) # Adds parent directory so we can import other modules
 import requests
 from Tools.ApiRequest import make_request
-SHELLY_IP_HEATER = "192.168.0.57"
-SHELLY_IP_TESLA = "192.168.0.43"
+from secret import SHELLY_IP_HEATER,SHELLY_IP_TESLA
 
 def shelly_total_power(ip):
     try:

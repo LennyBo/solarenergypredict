@@ -46,20 +46,24 @@ def log_power():
     
 def one_shot_night_routine():
     #Insert prediction for tomorrow
-    prediction = forecast_power_output(get_weather_next_day())[0]
-    db.insert_energy_day({'solar_energy':0,'solar_predicted':sum(prediction),
-                          'solar_night_morning_predicted':prediction[0], 'solar_morning_noon_predicted':prediction[1],
-                          'solar_noon_evening_predicted':prediction[2], 'solar_evening_night_predicted':prediction[3],
-                          'grid_energy':0,'twc_energy':0,
-                          'twc_green_precentage':0,'heater_energy':0,
-                          'heater_green_precentage':0,'house_energy':0,
-                          'house_green_precentage':0},
-                          date.today() + timedelta(days=1))
-    
-    # Decide if we do something
-    if prediction[1] < 20000: # If we have less than 20kW of power in the morning
-        print('Set heater overdrive until morning')
-        make_request('http://localhost:8080/house/heater?mode=Overdrive')
+    weather = get_weather_next_day()
+    if weather is not None:
+        prediction = forecast_power_output(weather)[0]
+        db.insert_energy_day({'solar_energy':0,'solar_predicted':sum(prediction),
+                            'solar_night_morning_predicted':prediction[0], 'solar_morning_noon_predicted':prediction[1],
+                            'solar_noon_evening_predicted':prediction[2], 'solar_evening_night_predicted':prediction[3],
+                            'grid_energy':0,'twc_energy':0,
+                            'twc_green_precentage':0,'heater_energy':0,
+                            'heater_green_precentage':0,'house_energy':0,
+                            'house_green_precentage':0},
+                            date.today() + timedelta(days=1))
+        
+        # Decide if we do something
+        if prediction[1] < 20000: # If we have less than 20kW of power in the morning
+            print('Set heater overdrive until morning')
+            make_request('http://localhost:8080/house/heater?mode=Overdrive')
+    else:
+        print('No weather data, connection error')
         
     
 
@@ -67,7 +71,7 @@ def run_power_logger():
     global db
     db = DatabaseModule('data/SolarDatabase.db',False)
 
-    # one_shot_night_routine() # Only for development
+    one_shot_night_routine() # Only for development
     log_power()
     schedule.every().day.at("23:00").do(one_shot_night_routine)
     schedule.every(5).minutes.do(control_components)

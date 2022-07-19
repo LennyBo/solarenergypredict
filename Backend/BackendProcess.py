@@ -99,7 +99,7 @@ def house_power():
 
 @get('/ping')
 def power():
-    return ["pong"]
+    return json.dumps({"status": "pong"}).encode('utf-8')
 
 if __name__ == '__main__':
     power_data = None

@@ -21,8 +21,7 @@ def get_solar_power():
 @get('/simulator/power')
 def simulator_power():
     current_time = datetime.now()
-    nearest_index = dataToStream.index.get_indexer([current_time], method='nearest')
-    nearest_row = dataToStream.iloc[nearest_index[0]].to_dict()
+    nearest_row = {}
     
     nearest_row['heater_power'] = get_heater_power()
     nearest_row['twc_power'] = get_tesla_power()
@@ -89,7 +88,7 @@ print(''' ▄▄▄▄▄▄▄ ▄▄▄▄▄▄   ▄▄▄ ▄▄▄▄▄�
 █  █▄▄█ █   █  █ █   █       █   ▄▄▄▄▄█ █   █ ██▄██ █       █       █   ▄   █ █   █ █       █   █  █ █
 █▄▄▄▄▄▄▄█▄▄▄█  █▄█▄▄▄█▄▄▄▄▄▄█   █▄▄▄▄▄▄▄█▄▄▄█▄█   █▄█▄▄▄▄▄▄▄█▄▄▄▄▄▄▄█▄▄█ █▄▄█ █▄▄▄█ █▄▄▄▄▄▄▄█▄▄▄█  █▄█''')
 
-available_modes = ['Normal','Overdrive','Off']
+available_modes = ['Normal','Overdrive','Off','Eco']
 heater_mode = available_modes[0]
 
 DAY_DATA = date(2022, 6, 10)

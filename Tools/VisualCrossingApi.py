@@ -1,4 +1,7 @@
+import sys
+sys.path.append( '.' ) # Adds parent directory so we can import other modules
 from requests import get
+import requests
 from secret import API_KEY_VC
 import pandas as pd
 import json
@@ -6,15 +9,17 @@ from datetime import datetime
 
 
 def get_weather_next_day():
-    r = get(
-        f"https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/gampelen/tomorrow?include=fcst%2Cobs%2Chistfcst%2Cstats%2Chours&key={API_KEY_VC}&contentType=json"
-    )
+    try:
+        r = get(
+            f"https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/gampelen/tomorrow?include=fcst%2Cobs%2Chistfcst%2Cstats%2Chours&key={API_KEY_VC}&contentType=json"
+        )
 
-    if r.status_code == 200:
-        data = json.loads(r.text)
-        return jsonToDF(data)
-    else:
-        return None
+        if r.status_code == 200:
+            data = json.loads(r.text)
+            return jsonToDF(data)
+    except requests.exceptions.ConnectionError:
+        pass
+    return None
 
 
 def jsonToDF(j):
@@ -42,3 +47,5 @@ def jsonToDF(j):
 
 
 
+if __name__=="__main__":
+    print(get_weather_next_day())

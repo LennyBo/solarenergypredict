@@ -9,7 +9,7 @@ from datetime import date
 from Backend.DatabaseModule import database as db
 import HouseInterface as house_I
 from multiprocessing import Process
-
+from Tools.Console import log
 from PowerController import run_power_logger
 
 
@@ -39,7 +39,7 @@ def daily():
 @get('/house/heater')
 def house_components():
     state = request.query.mode
-    print(state)
+    log("Setting heater to " + state)
     if state in ['Overdrive', 'Normal', 'Off', 'Eco']:
         data_parser.set_heater(state)
         return json.dumps({"status": "ok"})
@@ -49,7 +49,7 @@ def house_components():
 @get('/house/twc')
 def house_components():
     state = request.query.mode
-    print(state)
+    log("Setting Tesla to " + state + " control")
     if state in ['Smart Grid', 'Manual']:
         data_parser.set_twc_mode(state)
         return json.dumps({"status": "ok"})

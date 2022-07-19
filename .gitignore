@@ -14,7 +14,7 @@ models/
 data/*.db
 model.png
 temp.py
-
+SolarDatabase.db
 # C extensions
 *.so
 

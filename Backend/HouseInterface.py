@@ -1,9 +1,9 @@
 import sys
-from xml.etree.ElementTree import QName
 sys.path.append( '.' ) # Adds parent directory so we can import other modules
 
 import numpy as np
 from datetime import datetime, timedelta
+from Tools.Console import log
 from Tools.Shelly import heater_power, tesla_power
 from Tools.SolarEdgeModbus import CallModbus
 from Tools.ApiRequest import make_request
@@ -40,7 +40,7 @@ class Simulated_House(I_House_Controller):
         data = self.call_simulator()
         data['time'] = d.isoformat()
         data['twc_mode'] = self.twc_mode
-        # print(data)
+        # log(data)
         return data
     
     def call_simulator(self):
@@ -64,11 +64,11 @@ class Real_House(I_House_Controller):
         d = datetime.now()
         
         if self.old_power is not None and d - datetime.fromisoformat(self.old_power['time']) < timedelta(seconds=4):
-            print('using cached data')
+            log('using cached data')
             return self.old_power
         
         solar_edge = CallModbus()
-        if solar_edge is None and d - datetime.fromisoformat(self.old_power['time']) < timedelta(seconds=60): # Inverter failed to respond
+        if solar_edge is None and d - datetime.fromisoformat(self.old_power['time']) < timedelta(seconds=120): # Inverter failed to respond
             return self.old_power # If the cached data is not too old, send that one back
         elif solar_edge is None: # Inverter failed to respond and last data point is older than 60 seconds
             solar_edge = {'solar':0, 'grid':0, 'house':0}

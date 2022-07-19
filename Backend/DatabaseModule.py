@@ -1,16 +1,16 @@
 import sqlite3
 import pandas as pd
-from datetime import date,datetime,timedelta
+from datetime import date, datetime, timedelta
 
 
 class DatabaseModule:
-    def __init__(self, database_name,recreate_table=False):
+    def __init__(self, database_name, recreate_table=False):
         self.database_name = database_name
         if recreate_table:
             self.delete_table()
         self.create_table()
-        
-    def insert_power_data(self,data):
+
+    def insert_power_data(self, data):
         db = sqlite3.connect(self.database_name)
         db.execute(f'''REPLACE INTO HistoricPower 
                    (time,solar_power, grid_power, house_power, twc_power, heater_power, heater_mode) 
@@ -20,14 +20,15 @@ class DatabaseModule:
         db.close()
         date_ = datetime.fromisoformat(data['time']).date()
         self.update_energy_day(date_=date_)
-        
-    def select_power_day(self,date_):
+
+    def select_power_day(self, date_):
         db = sqlite3.connect(self.database_name)
-        df = pd.read_sql(f'''SELECT * FROM HistoricPower WHERE DATE(time)='{date_}' ''', db)
+        df = pd.read_sql(
+            f'''SELECT * FROM HistoricPower WHERE DATE(time)='{date_}' ''', db)
         db.close()
         return df
-    
-    def insert_energy_day(self,data,date_):
+
+    def insert_energy_day(self, data, date_):
         db = sqlite3.connect(self.database_name)
         if 'solar_predicted' in data:
             db.execute(f'''REPLACE INTO DailyEnergy
@@ -50,8 +51,8 @@ class DatabaseModule:
                     )''')
         db.commit()
         db.close()
-    
-    def update_energy_day(self,date_):
+
+    def update_energy_day(self, date_):
         # TODO Sum * minute
         db = sqlite3.connect(self.database_name)
         db.execute(f'''REPLACE INTO DailyEnergy(date,solar_energy,solar_predicted,grid_energy,twc_energy,heater_energy,house_energy)
@@ -68,10 +69,11 @@ class DatabaseModule:
                    ''')
         db.commit()
         db.close()
-    
-    def select_energy_day(self,date_):
+
+    def select_energy_day(self, date_):
         db = sqlite3.connect(self.database_name)
-        df = pd.read_sql(f'''SELECT * FROM DailyEnergy WHERE date='{date_}' ''', db)#WHERE date='{date}'
+        df = pd.read_sql(
+            f'''SELECT * FROM DailyEnergy WHERE date='{date_}' ''', db)  # WHERE date='{date}'
         db.close()
         return df
 
@@ -87,7 +89,7 @@ class DatabaseModule:
                 heater_power INTERGER,
                 heater_mode TEXT
                 )'''
-            )
+                   )
         db.execute('''CREATE TABLE IF NOT EXISTS DailyEnergy (
                 date DATE PRIMARY KEY DEFAULT CURRENT_DATE,
                 solar_energy INTERGER,
@@ -104,22 +106,21 @@ class DatabaseModule:
                 house_energy INTERGER,
                 house_green_precentage FLOAT
                 )'''
-            )
+                   )
         db.close()
-    
+
     def delete_table(self):
         db = sqlite3.connect(self.database_name)
         db.execute('''DROP TABLE IF EXISTS HistoricPower''')
         db.execute('''DROP TABLE IF EXISTS DailyEnergy''')
         db.close()
-        
-database = DatabaseModule('data/SolarDatabase.db',False) # to import
+
+
+database = DatabaseModule('./SolarDatabase.db', False)  # to import
 
 if __name__ == '__main__':
     db = sqlite3.connect('data/SolarDatabase.db')
-    
+
     df = database.select_energy_day(date_=date.today() + timedelta(days=1))
     print(date)
     print(df)
-
-    

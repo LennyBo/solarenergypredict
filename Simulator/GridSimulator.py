@@ -66,7 +66,6 @@ def simulator_set_power():
         tesla_p = int(tesla_p)
         house_p = int(house_p)
         solar_p = int(solar_p)
-        print(heater_p,tesla_p,house_p,solar_p)
         
         heater_power = heater_p
         tesla_power = tesla_p

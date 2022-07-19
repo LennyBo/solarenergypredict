@@ -2,7 +2,7 @@ import sys
 sys.path.append( '.' ) # Adds parent directory so we can import other modules
 import solaredge_modbus as smdb
 from secret import solar_edge_ip, solar_edge_port
-
+from Console import log
 
 def CallModbus():
     inv = smdb.Inverter(host=solar_edge_ip,port=solar_edge_port)
@@ -13,7 +13,7 @@ def CallModbus():
             solarPower = round(inv.read("power_ac")["power_ac"] * 10 ** inv.read("power_ac_scale")["power_ac_scale"])
             gridPower = round(meter.read("power")["power"] * 10 ** meter.read("power_scale")["power_scale"])
         except KeyError:
-            print("Error keyerror")
+            log("Error keyerror")
             inv.disconnect()
             return None
         housePower = solarPower - gridPower
@@ -25,7 +25,7 @@ def CallModbus():
         
         return {'solar':solarPower, 'grid':gridPower, 'house':housePower}
     else:
-        print("Inverter unreachable")
+        log("Inverter unreachable")
         inv.disconnect()
             
     return None

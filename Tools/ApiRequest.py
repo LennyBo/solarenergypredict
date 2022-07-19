@@ -1,4 +1,5 @@
 import requests
+from Console import log
 
 def make_request(url, method='GET', data=None):
     if method == 'GET':
@@ -10,4 +11,4 @@ def make_request(url, method='GET', data=None):
         data = response.json()
         return data
     else:
-        print("Request error: " + str(response.status_code))
+        log("Request error: " + str(response.status_code))

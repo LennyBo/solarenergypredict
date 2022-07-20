@@ -150,6 +150,7 @@ print(f"Loaded {len(df)} rows\tStartDate: {df.index[0]}\tEndDate: {df.index[-1]}
 
 print("Preprocessing...")
 x,y = Preprocessing(df)
+x = x.reshape(x.shape[0], x.shape[1], x.shape[2], 1)
 print(f"Done preprocessing.\tX: {len(x)} shape:{x.shape}\tY: {len(y)}\n")
 
 print(f"Splitting into train val and test with test size {TEST_SIZE * 100}%...")

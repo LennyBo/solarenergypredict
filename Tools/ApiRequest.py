@@ -1,5 +1,7 @@
+import sys
+sys.path.append('.')  # Adds parent directory so we can import other modules
 import requests
-from Console import log
+from Tools.Console import log
 
 def make_request(url, method='GET', data=None):
     if method == 'GET':

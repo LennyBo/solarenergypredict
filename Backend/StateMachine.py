@@ -3,6 +3,7 @@ sys.path.append( '.' ) # Adds parent directory so we can import other modules
 from datetime import datetime
 from Tools.ApiRequest import make_request
 from Tools.TeslaControl import start_charge_if_home, stop_charge_if_home
+from Tools.Console import log
 
 
 sunrise = 5 # am
@@ -16,10 +17,10 @@ min_tesla_on_power = 4500 # The minimum charging rate of the tesla
 def control_components():
     
     time = datetime.now()
-    if time.hour < sunrise or time.hour > sunset: # If it is night
-        print("night control") # Not anything to do
+    if time.hour < sunrise or time.hour >= sunset: # If it is night
+        log("night control") # Not anything to do
     else:
-        print("Day control")
+        log("Day control")
         is_heater_on,heater_mode, is_charging_tesla, is_tesla_home,grid_power,is_tesla_smart = get_house_state()
         
         if not is_heater_on and heater_mode == 'Normal' and not is_charging_tesla: # heater off / normal / tesla not charging
@@ -72,19 +73,19 @@ def get_house_state():
     
 
 def heater_normal():
-    print('Set heater normal')
+    log('Set heater normal')
     make_request('http://localhost:8080/house/heater?mode=Normal')
 
 def heater_overdrive():
-    print('Set heater overdrive')
+    log('Set heater overdrive')
     make_request('http://localhost:8080/house/heater?mode=Overdrive')
 
 def tesla_start_charge():
-    print('Start tesla charge')
+    log('Start tesla charge')
     start_charge_if_home()
 
 def tesla_stop_charge():
-    print('Stop tesla charge')
+    log('Stop tesla charge')
     stop_charge_if_home()
     
 if __name__=="__main__":

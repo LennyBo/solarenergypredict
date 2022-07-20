@@ -1,5 +1,7 @@
+import sys
+sys.path.append('.')  # Adds parent directory so we can import other modules
 import teslapy
-from Console import log
+from Tools.Console import log
 house_lat = 47.0142651
 house_lon = 7.0556118
 

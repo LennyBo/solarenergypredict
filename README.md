@@ -1,12 +1,12 @@
-# Installation
+﻿# Installation
 
-## Createing a executable environment
-To install and run the probram, the first step is to get all the files downloaded so clone the repository.
+## creating an executable environment
+to install and run the program, the first step is to get all the files downloaded so clone the repository.
 
 1. Train a model to use
    * Run DeepLearning/DeepLSolar.py
    * This will create a tflite file in models/ which is the model that will be used.
-2. Create a secret.py file in the root directory
+2. Create a secret.py file in the root directory.
     * Add the following lines
 ```
 # Visualcrossing api key
@@ -46,9 +46,9 @@ If it is wished to run the deploy version, go to Backend/BackendProcess.py at li
 
 # Installation on the raspberry pi
 
-For the deploy running, a raspberry pi 3 Model B Vi.2 is used. It could be done on other models as long as a 64 bit version is compatible because tensorflow seems to not run on 32-bit.
+for the deploy running, a raspberry pi 3 Model B Vi.2 is used. It could be done on other models as long as a 64 bit version is compatible because tensorflow seems to not run on 32-bit.
 
-64 bit is required to install tensorflow so a version of this project could be made for 32 bit without predicive controls.
+64 bit is required to install tensorflow so a version of this project could be made for 32 bit without predictive controls.
 
 1. Install ubuntu 64 bit
 2. Install python 3.8
@@ -91,7 +91,7 @@ import tensorflow as tf
 tf.__version___
 ```
 
-should give 2.8.0
+Should give 2.8.0
 
 4. Install python packages
 

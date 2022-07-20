@@ -83,6 +83,8 @@ pip install -U wheel mock six
 pip install [wheel file]
 ```
 
+This will a few hours.
+
 Once it is done to test the installation:
 
 ```
@@ -134,7 +136,7 @@ chmod +x StartEnergyPredict.sh
    - To take control of the process, use the following command:
      - screen -r BackendScreen
      - screen -r StreamlitScreen
-10. Automatically restart the program on reboot
+10. Automatically restart the program on reboot (power outage)
 
 ```bash
 crontab -e

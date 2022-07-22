@@ -21,8 +21,6 @@ def CallModbus():
         inv.disconnect()
         meter.disconnect()
         
-        #print(f"Solar: {solarPower / 1000} kWh\tGrid: {gridPower / 1000} kWh\tHouse: {housePower / 1000} kWh")
-        
         return {'solar':solarPower, 'grid':gridPower, 'house':housePower}
     else:
         log("Inverter unreachable")

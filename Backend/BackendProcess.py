@@ -15,17 +15,17 @@ from PowerController import run_power_logger
 
 @get('/house/power/day')
 def daily():
+    """_summary_: Get the historic power from the database
+
+    Returns:
+        json dict: data of the historic power or error message
+    """
     try:
         d = request.query.date
         if d == '':
             d = date.today()
         else:
             d = date.fromisoformat(d)
-        
-        # data = json.loads(request.body.read().decode('utf-8'))
-        
-        # d = date.fromisoformat(data['date'])
-        
         df = db.select_power_day(d)
         return json.dumps({"status": "ok", "data": df.to_dict()})
     except KeyError:
@@ -38,6 +38,11 @@ def daily():
     
 @get('/house/heater')
 def house_components():
+    """_summary_: Change the heater mode
+
+    Returns:
+        json dict: request status
+    """
     state = request.query.mode
     log("Setting heater to " + state)
     if state in ['Overdrive', 'Normal', 'Off', 'Eco']:
@@ -48,6 +53,11 @@ def house_components():
     
 @get('/house/twc')
 def house_components():
+    """_summary_: Change the tesla wall charger control mode
+
+    Returns:
+        json dict: request status
+    """
     state = request.query.mode
     log("Setting Tesla to " + state + " control")
     if state in ['Smart Grid', 'Manual']:
@@ -58,6 +68,7 @@ def house_components():
     
 @get('/house/energy')
 def house_energy():
+    """_summary_: Get the historic energy from the database"""
     try:
         d = request.query.date
         if d == '':
@@ -81,19 +92,20 @@ def house_energy():
             'heater_energy': energy['heater_energy'][0],
             'house_energy': energy['house_energy'][0],
         }
-        
         return json.dumps({"status": "ok", "data": dict_})
     except KeyError:
         return json.dumps({"status": "error expected key: date"})
     except ValueError:
         return json.dumps({"status": "error date format"})
-    # except Exception as e:
-    #     print(e)
-    #     return json.dumps({"status": "unknown error"})
 
 
 @get('/house/power')
 def house_power():
+    """_summary_: Get the current state of all components
+
+    Returns:
+        json dict: request status and data
+    """
     return json.dumps({"status": "ok", "data": data_parser.get_power()}).encode('utf-8')
     
 
@@ -115,9 +127,9 @@ if __name__ == '__main__':
     else:
         data_parser = house_I.Real_House() # if it is running on the pi we always want to do the real calls
 
+    # PowerController runs on a separate process
     thread_controller = Process(target=run_power_logger)
     thread_controller.daemon = True
     thread_controller.start()
     
     run(host='localhost', port=8080, debug=False,server='cheroot')
-

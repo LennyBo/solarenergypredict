@@ -25,7 +25,7 @@ def get_weather_next_day():
 def jsonToDF(j):
     hours = j["days"][0]["hours"]
 
-    # Could be done with a single dict and a list comprehension but it's more readable this way
+    # Could be done with a list comprehension but it's more readable this way
     #'temp', 'feelslike', 'humidity', 'precip', 'windgust', 'windspeed','winddir', 'sealevelpressure', 'cloudcover', 'conditions', 'Ghi','Ghi_NextDay'
     data = {
         "datetime": [datetime.fromtimestamp(x["datetimeEpoch"]).isoformat() for x in hours],

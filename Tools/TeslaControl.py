@@ -49,11 +49,6 @@ def stop_charge_if_home():
             except teslapy.VehicleError as e:
                 log(f"Error stopping charge : {e}")
     
-    
-    # CHANGE_CHARGE_LIMIT
-    # START_CHARGE
-    # STOP_CHARGE
-    
 if __name__ == '__main__':
     start_charge_if_home()
     

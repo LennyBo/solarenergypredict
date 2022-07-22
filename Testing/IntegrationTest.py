@@ -6,9 +6,6 @@ from Tools.ApiRequest import make_request
 import numpy as np
 import time
 
-
-    
-
 class TestBackend(unittest.TestCase):
     def test_running(self):
         try:

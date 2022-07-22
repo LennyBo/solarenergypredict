@@ -20,28 +20,15 @@ def get_solar_power():
 
 @get('/simulator/power')
 def simulator_power():
-    current_time = datetime.now()
-    nearest_row = {}
-    
-    nearest_row['heater_power'] = get_heater_power()
-    nearest_row['twc_power'] = get_tesla_power()
-    nearest_row['house_power'] = get_house_power() + nearest_row['twc_power'] + nearest_row['heater_power']
-    
-    nearest_row['solar_power'] = get_solar_power()
-    
-    nearest_row['grid_power'] = nearest_row['solar_power'] - nearest_row['house_power']
-    
-    nearest_row['heater_mode'] = heater_mode
-    nearest_row['twc_mode'] = 'eco' # FIXME
-
-    
-    
-    
-    # nearest_index['heater_power'] = heater_power(nearest_index['heater_power'])
-    
-    # nearest_row = nearest_row + np.random.normal(0, 0.1, len(nearest_row))
-    
-    return json.dumps({"status": "ok", "data":nearest_row})
+    data = {}
+    data['heater_power'] = get_heater_power()
+    data['twc_power'] = get_tesla_power()
+    data['house_power'] = get_house_power() + data['twc_power'] + data['heater_power']
+    data['solar_power'] = get_solar_power()
+    data['grid_power'] = data['solar_power'] - data['house_power']
+    data['heater_mode'] = heater_mode
+    data['twc_mode'] = 'Smart Grid' # FIXME
+    return json.dumps({"status": "ok", "data":data})
 
 @get('/simulator/heater/setmode')
 def simulator_heater_setmode():
@@ -85,18 +72,8 @@ print('''  ___  ____  __  ____    ____  __  _  _  _  _  __     __  ____  __  ___
  \___/(__\_)(__)(____/  (____/(__)\_)(_/\____/\____/\_/\_/(__) \__/(__\_)''')
 available_modes = ['Normal','Overdrive','Off','Eco']
 heater_mode = available_modes[0]
-
-DAY_DATA = date(2022, 6, 10)
-now = datetime.now()
-dataToStream = db.select_power_day(DAY_DATA) # Will be used to stream data to simulate
-
+# Intialize variables
 solar_power = 10000
 heater_power = 6000
 tesla_power = 8000
 house_power = 500
-
-# FIXME: Will stop working after midnight
-dataToStream['time'] = dataToStream['time'].apply(lambda x: datetime.fromisoformat(x).replace(year=now.year,month=now.month,day=now.day))
-
-dataToStream = dataToStream.set_index('time').drop('id',axis=1)
-    

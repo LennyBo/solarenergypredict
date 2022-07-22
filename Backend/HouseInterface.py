@@ -40,7 +40,6 @@ class Simulated_House(I_House_Controller):
         data = self.call_simulator()
         data['time'] = d.isoformat()
         data['twc_mode'] = self.twc_mode
-        # log(data)
         return data
     
     def call_simulator(self):

@@ -4,7 +4,15 @@ from datetime import date, datetime, timedelta
 
 
 class DatabaseModule:
+    """
+    This class facilitates the interface between the database and the backend
+    """
     def __init__(self, database_name, recreate_table=False):
+        """
+        Args:
+            database_name (string): Path to the sqlite file
+            recreate_table (bool, optional): True means to reset the database. Defaults to False.
+        """
         self.database_name = database_name
         if recreate_table:
             self.delete_table()
@@ -53,7 +61,6 @@ class DatabaseModule:
         db.close()
 
     def update_energy_day(self, date_):
-        # TODO Sum * minute
         db = sqlite3.connect(self.database_name)
         db.execute(f'''REPLACE INTO DailyEnergy(date,solar_energy,solar_predicted,grid_energy,twc_energy,heater_energy,house_energy)
                    SELECT

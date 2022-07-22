@@ -1,19 +1,15 @@
-import unittest
-
 import sys
 sys.path.append( '.' ) # Adds parent directory so we can import other modules
-
 import requests
-
+import unittest
 from Tools.ApiRequest import make_request
 import numpy as np
 import time
 
 
-class TestBackend(unittest.TestCase):
-
-
     
+
+class TestBackend(unittest.TestCase):
     def test_running(self):
         try:
             ping = make_request('http://localhost:8080/ping')

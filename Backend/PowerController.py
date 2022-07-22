@@ -13,17 +13,15 @@ import requests
 from DatabaseModule import database as db
 import schedule
 import time
+# from secret import lo
 
 
-
-every = 1  # minutes
+every = 15  # minutes
 
 
 def get_next_job_time(time, interval):
     next_job_time = time.replace(second=0, microsecond=0)
-    next_job_time = next_job_time + \
-        timedelta(minutes=next_job_time.minute//interval *
-                  interval + interval - next_job_time.minute)
+    next_job_time = next_job_time + timedelta(minutes=next_job_time.minute//interval * interval + interval - next_job_time.minute)
 
     return next_job_time
 

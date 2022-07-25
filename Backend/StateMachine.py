@@ -2,7 +2,7 @@ import sys
 sys.path.append( '.' ) # Adds parent directory so we can import other modules
 from datetime import datetime
 from Tools.ApiRequest import make_request
-from Tools.TeslaControl import start_charge_if_home, stop_charge_if_home
+from Tools.TeslaControl import start_charge_if_home, stop_charge_if_home,set_charge_limit_if_home
 from Tools.Console import log
 
 
@@ -22,7 +22,8 @@ def control_components():
     else:
         log("Day control")
         is_heater_on,heater_mode, is_charging_tesla, is_tesla_home,grid_power,is_tesla_smart = get_house_state()
-        
+        if not is_charging_tesla:
+            set_charge_limit_if_home(60)
         if not is_heater_on and heater_mode == 'Normal' and not is_charging_tesla: # heater off / normal / tesla not charging
             if grid_power > heater_on_power:
                 heater_overdrive()
@@ -42,7 +43,7 @@ def control_components():
         elif not is_heater_on and heater_mode == 'Normal' and is_charging_tesla:
             if grid_power > heater_on_power:
                 heater_overdrive()
-            elif grid_power < -2000 and is_tesla_smart: # Not enough sun to charge the tesla TODO check if tesla mode is boost (meaning we overide this rule)
+            elif grid_power < -1000 and is_tesla_smart: # Not enough sun to charge the tesla
                 tesla_stop_charge()
         elif not is_heater_on and heater_mode == 'Overdrive' and is_charging_tesla:
             if grid_power < -2000 and is_tesla_smart:

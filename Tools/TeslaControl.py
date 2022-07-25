@@ -48,8 +48,29 @@ def stop_charge_if_home():
                 log("Stopped charge")
             except teslapy.VehicleError as e:
                 log(f"Error stopping charge : {e}")
+
+def set_charge_limit_if_home(new_limit):
+    with teslapy.Tesla('lenny.boegli@moosvolk.ch') as tesla:
+        vehicles = tesla.vehicle_list()
+        tesla = vehicles[0]
+
+        latest_data = tesla.get_latest_vehicle_data()
+        position = (latest_data['drive_state']['latitude'],
+                    latest_data['drive_state']['longitude'])
+        current_limit = latest_data['charge_state']['charge_limit_soc']
+        if current_limit != new_limit:
+            try:
+                tesla.sync_wake_up()
+                try:
+                    tesla.command('CHANGE_CHARGE_LIMIT', percent=new_limit)
+                except:
+                    pass # If the charge limit is already set to the value, this shitty lib raises an error, wtf
+                log(f"Set charge limit to {new_limit}")
+            except teslapy.VehicleError as e:
+                log(f"Error setting charge limit : {e}")
+            
     
 if __name__ == '__main__':
-    start_charge_if_home()
+    set_charge_limit_if_home(65)
     
     

@@ -1,4 +1,38 @@
-﻿# Installation
+﻿# Project Tree
+
+* DeepLearning
+    * DataEngine.py is a helper file to read and process the dataset
+    * DeepLSolar.py creates, trains and tests a cnn lstm model and stores it in tflite format
+    * DeepLTransformer.py creates, trains and tests a transformer model
+* Backend
+    * Main backend api BackendProcess.py
+    * PowerController.py is the scheduler that logs power consumption, controlls the systems and sends the commands to the backend
+    * HouseInterface.py is a class file that handles the communication with the house outside (house or simulated house)
+    * DatabaseModule.py is a class that handles inserts, updates and deletes to the database
+    * StateMachine.py is a class that handles decisions made by the power controller
+* Simulator
+    * GridSimulator.py is a file that has routes to add to the backend api to simulate the house through the HouseInterface
+    * SimulatorControl.py is a simple streamlit frontend to control the simulators output
+* Tools
+    * Is a folder that contains all the tools used for the project
+    * ApiRequest.py is a helper file to make http requets on json apis
+    * Console.py holds a log function that can be used to print to the console with date and time
+    * ForecastPower.py takes a processed dataframe and returns a forecasted power consumption
+    * Shelly.py is a helper file to make requests to the shellies in the house
+    * SolarEdgeModebus.py is the interface to the solar inverter
+    * TeslaControl.py controls the tesla
+    * VisualCorssingApi.py is used to get weatherforecasts from the next day
+* Testing
+    * IntegrationTest.py is a file that tests the integration of the backend. Make sure to run the backend in simulation mode to execute the tests
+    * UnitTest.py is a file that runs some basic unit tests on different funtions
+    * ModelTest.py opens ./models/VisualCrossing_LSTM_model_splited_day.h5 and runs thourgh the dataset to compare to real world data from solaredge
+* WebServer
+    * Dashboard.py is the streamlit frontend
+* cache.json (needs to be crated) is a file that stores the tesla owner api keys
+* secret.py (needs to be crated) is a settings file that stores private keys and ips
+* requirements.txt is a file that stores the python requirements for the project
+
+# Installation
 
 ## creating an executable environment
 to install and run the program, the first step is to get all the files downloaded so clone the repository.

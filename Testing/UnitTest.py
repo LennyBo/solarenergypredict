@@ -37,7 +37,7 @@ class UnitTest(unittest.TestCase):
         df = get_weather_next_day()
         
         self.assertEqual(len(df), 24)
-        self.assertEquals(len(df.columns), 11)
+        self.assertEqual(len(df.columns), 11)
         
     def test_tflite_model(self):
         df = get_weather_next_day()

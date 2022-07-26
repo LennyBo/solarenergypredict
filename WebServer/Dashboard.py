@@ -1,4 +1,5 @@
 import sys
+from turtle import width
 sys.path.append( '.' ) # Adds parent directory so we can import other modules
 import streamlit as st
 import time
@@ -252,6 +253,11 @@ chart = (
     )
 )
 st.altair_chart(chart, use_container_width=True)
+
+st.markdown(f"Author: Lenny Boegli")
+i = Image.open(f"./WebServer/images/logo_he-arc.png")
+st.image(i,width=200)
+st.markdown(f"All rights reserved")
 
 while True:
     pastData = currentData

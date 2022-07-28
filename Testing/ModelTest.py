@@ -33,11 +33,9 @@ dates = df_weather.index[:len(df_weather["Ghi_NextDay"].dropna()):24].tolist() #
 print("preprocessing data...")
 x, y = Preprocessing(df_weather)
 
-
 print("predicting...")
+# model = keras.models.load_model("models/VisualCrossing_Transformer_135.92")
 model = keras.models.load_model('./models/VisualCrossing_LSTM_model_splited_day.h5')
-# model = keras.models.load_model('./models/VisualCrossing_LSTM_model.h5')
-# model = keras.models.load_model('models/400MaeModel.h5')
 y_pred = model.predict(x)  # Predicts sum Ghi of each date
 
 y_pred = [sum(x) for x in y_pred]

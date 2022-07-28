@@ -78,15 +78,13 @@ def create_vit_classifier():
     # Add MLP.
     features = mlp(representation, hidden_units=mlp_head_units, dropout_rate=0.1)
     # Classify outputs.
-    logits = layers.Dense(1)(features)
+    logits = layers.Dense(4)(features)
     # Create the Keras model.
     model = keras.Model(inputs=inputs, outputs=logits)
     return model
 
 def run_experiment(model):
-    optimizer = tfa.optimizers.AdamW(
-        learning_rate=learning_rate, weight_decay=weight_decay
-    )
+    optimizer = "adam"
 
     model.compile(
         optimizer=optimizer,
@@ -140,7 +138,7 @@ transformer_units = [
     projection_dim * 2,
     projection_dim,
 ]  # Size of the transformer layers
-transformer_layers = 12
+transformer_layers = 6
 mlp_head_units = [500, 200,10]  # Size of the dense layers of the final classifier
 
 

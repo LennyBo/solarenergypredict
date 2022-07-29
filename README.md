@@ -5,31 +5,31 @@
     * DeepLSolar.py creates, trains and tests a cnn lstm model and stores it in tflite format
     * DeepLTransformer.py creates, trains and tests a transformer model
 * Backend
-    * Main backend api BackendProcess.py
-    * PowerController.py is the scheduler that logs power consumption, controlls the systems and sends the commands to the backend
+    * Main backend API BackendProcess.py
+    * PowerController.py is the scheduler that logs power consumption, controls the systems and sends the commands to the backend
     * HouseInterface.py is a class file that handles the communication with the house outside (house or simulated house)
     * DatabaseModule.py is a class that handles inserts, updates and deletes to the database
     * StateMachine.py is a class that handles decisions made by the power controller
 * Simulator
-    * GridSimulator.py is a file that has routes to add to the backend api to simulate the house through the HouseInterface
+    * GridSimulator.py is a file that has routes to add to the backend API to simulate the house through the HouseInterface
     * SimulatorControl.py is a simple streamlit frontend to control the simulators output
 * Tools
     * Is a folder that contains all the tools used for the project
-    * ApiRequest.py is a helper file to make http requets on json apis
+    * ApiRequest.py is a helper file to make http requests on json APIs
     * Console.py holds a log function that can be used to print to the console with date and time
     * ForecastPower.py takes a processed dataframe and returns a forecasted power consumption
     * Shelly.py is a helper file to make requests to the shellies in the house
     * SolarEdgeModebus.py is the interface to the solar inverter
     * TeslaControl.py controls the tesla
-    * VisualCorssingApi.py is used to get weatherforecasts from the next day
+    * VisualCorssingApi.py is used to get weather forecasts from the next day
 * Testing
     * IntegrationTest.py is a file that tests the integration of the backend. Make sure to run the backend in simulation mode to execute the tests
     * UnitTest.py is a file that runs some basic unit tests on different funtions
-    * ModelTest.py opens ./models/VisualCrossing_LSTM_model_splited_day.h5 and runs thourgh the dataset to compare to real world data from solaredge
+    * ModelTest.py opens ./models/VisualCrossing_LSTM_model_splited_day.h5 and runs through the dataset to compare to real-world data from solaredge
 * WebServer
     * Dashboard.py is the streamlit frontend
-* cache.json (needs to be crated) is a file that stores the tesla owner api keys
-* secret.py (needs to be crated) is a settings file that stores private keys and ips
+* cache.json (needs to be crated) is a file that stores the tesla owner API keys
+* secret.py (needs to be crated) is a setting file that stores private keys and ips
 * requirements.txt is a file that stores the python requirements for the project
 
 # Installation
@@ -57,10 +57,10 @@ solar_edge_port = 1502 # 1502 is the default port
     * pip install pandas streamlit schedule solaredge_modbus requests bottle cheroot teslapy tensorflow matplotlib sklearn
     * To run the transformer, also install
     * pip install tensorflow_addons
-4. Get a tesla api token
+4. Get a tesla API token
     *  run Tools/TeslaControl.py
     *  Log in with the tesla account that is tied to the tesla
-    *  Copy the url after the login and paste it 
+    *  Copy the URL after the login and paste it 
     *  Check if the cach.json file is created in the root directory
 
 ## Running the program
@@ -80,7 +80,7 @@ If it is wished to run the deploy version, go to Backend/BackendProcess.py at li
 
 # Installation on the raspberry pi
 
-for the deploy running, a raspberry pi 3 Model B Vi.2 is used. It could be done on other models as long as a 64 bit version is compatible because tensorflow seems to not run on 32-bit.
+for the deploy running, a raspberry pi 3 Model B Vi.2 is used. It could be done on other models as long as a 64-bit version is compatible because tensorflow seems to not run on 32-bit.
 
 64 bit is required to install tensorflow so a version of this project could be made for 32 bit without predictive controls.
 
@@ -137,7 +137,7 @@ pip install pandas streamlit schedule solaredge_modbus requests bottle cheroot
 
 5. Copy the files to the pi
    - Recommend using WinSCP to copy the files to the pi.
-   - Make sure a trained model is present with the secret.py file set with the correct api keys
+   - Make sure a trained model is present with the secret.py file set with the correct API keys
 6. Create a startup script on the pi
 
 ```bash

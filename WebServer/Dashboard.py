@@ -1,5 +1,4 @@
 import sys
-from turtle import width
 sys.path.append( '.' ) # Adds parent directory so we can import other modules
 import streamlit as st
 import time

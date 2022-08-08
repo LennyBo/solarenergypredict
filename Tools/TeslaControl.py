@@ -1,6 +1,7 @@
 import sys
 sys.path.append('.')  # Adds parent directory so we can import other modules
 import teslapy
+import time
 from Tools.Console import log
 house_lat = 47.0142651
 house_lon = 7.0556118
@@ -25,6 +26,7 @@ def start_charge_if_home():
                     tesla.command('CHANGE_CHARGE_LIMIT', percent=90)
                 except:
                     pass # If the charge limit is already set to the value, this shitty lib raises an error, wtf
+                time.sleep(10)
                 tesla.command('START_CHARGE')
                 log("Charging to 90% Started")
             except teslapy.VehicleError as e:
@@ -44,6 +46,7 @@ def stop_charge_if_home():
                     tesla.command('CHANGE_CHARGE_LIMIT', percent=60)
                 except:
                     pass # If the charge limit is already set to the value, this shitty lib raises an error, wtf
+                time.sleep(10)
                 tesla.command('STOP_CHARGE')
                 log("Stopped charge")
             except teslapy.VehicleError as e:
@@ -58,7 +61,7 @@ def set_charge_limit_if_home(new_limit):
         position = (latest_data['drive_state']['latitude'],
                     latest_data['drive_state']['longitude'])
         current_limit = latest_data['charge_state']['charge_limit_soc']
-        if current_limit != new_limit:
+        if is_equal(position[0], house_lat) and is_equal(position[1], house_lon) and current_limit != new_limit:
             try:
                 tesla.sync_wake_up()
                 try:

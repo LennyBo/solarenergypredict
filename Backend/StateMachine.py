@@ -6,7 +6,7 @@ from Tools.TeslaControl import start_charge_if_home, stop_charge_if_home,set_cha
 from Tools.Console import log
 
 
-sunrise = 5 # am
+sunrise = 8 # am
 sunset = 22 # pm
 
 heater_on_power = 7000 # When heater is runnning, it uses about 7kw

@@ -90,4 +90,8 @@ def run_power_logger():
 
 
 if __name__ == '__main__':
-    run_power_logger()
+    while True:
+        try:
+            run_power_logger()
+        except:
+            print('Encoutered error')

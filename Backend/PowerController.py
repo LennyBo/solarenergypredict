@@ -4,10 +4,7 @@ from StateMachine import control_components
 
 from Tools.Console import log
 from Tools.ApiRequest import make_request
-from Tools.ForecastPower import forecast_power_output
-from Tools.VisualCrossingApi import get_weather_next_day
 
-from datetime import date
 import requests
 
 from DatabaseModule import database as db
@@ -52,35 +49,34 @@ def log_power():
     return schedule.CancelJob
 
 
-def one_shot_night_routine():
-    """_summary_: Runs a one shot night routine to make a night decision on power usage
-    """
-    weather = get_weather_next_day() # Get weather data
-    if weather is not None: # If none it means the api is not running
-        prediction = forecast_power_output(weather)[0] # Run the weather forecast through the model
-        # insert prediction into database with 0 placeholder
-        # TODO Maybe change the 0 blank so it is easier to read
-        db.insert_energy_day({'solar_energy': 0, 'solar_predicted': sum(prediction),
-                              'solar_night_morning_predicted': prediction[0], 'solar_morning_noon_predicted': prediction[1],
-                              'solar_noon_evening_predicted': prediction[2], 'solar_evening_night_predicted': prediction[3],
-                              'grid_energy': 0, 'twc_energy': 0,
-                              'twc_green_precentage': 0, 'heater_energy': 0,
-                              'heater_green_precentage': 0, 'house_energy': 0,
-                              'house_green_precentage': 0},
-                             date.today() + timedelta(days=1))
+# def one_shot_night_routine():
+#     """_summary_: Runs a one shot night routine to make a night decision on power usage
+#     """
+#     weather = get_weather_next_day() # Get weather data
+#     if weather is not None: # If none it means the api is not running
+#         prediction = forecast_power_output(weather)[0] # Run the weather forecast through the model
+#         # insert prediction into database with 0 placeholder
+#         # TODO Maybe change the 0 blank so it is easier to read
+#         db.insert_energy_day({'solar_energy': 0, 'solar_predicted': sum(prediction),
+#                               'solar_night_morning_predicted': prediction[0], 'solar_morning_noon_predicted': prediction[1],
+#                               'solar_noon_evening_predicted': prediction[2], 'solar_evening_night_predicted': prediction[3],
+#                               'grid_energy': 0, 'twc_energy': 0,
+#                               'twc_green_precentage': 0, 'heater_energy': 0,
+#                               'heater_green_precentage': 0, 'house_energy': 0,
+#                               'house_green_precentage': 0},
+#                              date.today() + timedelta(days=1))
 
-        # Decide if we do something
-        if prediction[1] < 20000:  # If we have less than 20kW of power in the morning
-            log('Set heater overdrive until morning')
-            make_request('http://localhost:8080/house/heater?mode=Overdrive')
-    else:
-        log('No weather data, connection error') # Could be possible to just postebone 15 minutes to try again
+#         # Decide if we do something
+#         if prediction[1] < 20000:  # If we have less than 20kW of power in the morning
+#             log('Set heater overdrive until morning')
+#             make_request('http://localhost:8080/house/heater?mode=Overdrive')
+#     else:
+#         log('No weather data, connection error') # Could be possible to just postebone 15 minutes to try again
 
 
 def run_power_logger():
     # one_shot_night_routine() # Only for development
     log_power() # Starts logger routine
-    schedule.every().day.at("23:00").do(one_shot_night_routine)
     schedule.every(15).minutes.do(control_components)
 
     log('Power logger started')
@@ -91,7 +87,4 @@ def run_power_logger():
 
 if __name__ == '__main__':
     while True:
-        try:
-            run_power_logger()
-        except:
-            print('Encoutered error')
+        run_power_logger()
